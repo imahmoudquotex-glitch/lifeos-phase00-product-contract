@@ -117,13 +117,13 @@ export class NoteRepo extends BaseRepo<Note, NoteRow> {
 	}
 
 	async listVersions(noteId: string, workspaceId: string): Promise<NoteVersion[]> {
-		const rows = await this.db.any<NoteVersionRow>(
+		const rows = await this.db.many<NoteVersionRow>(
 			`SELECT id, note_id, workspace_id, version, title, body_md, edited_by, created_at
 			 FROM note_versions
 			 WHERE note_id = $1 AND workspace_id = $2
 			 ORDER BY version DESC`,
 			[noteId, workspaceId],
 		);
-		return rows.map((r) => this.mapVersionRow(r));
+		return rows.map((r: NoteVersionRow) => this.mapVersionRow(r));
 	}
 }

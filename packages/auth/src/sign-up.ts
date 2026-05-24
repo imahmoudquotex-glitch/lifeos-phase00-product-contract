@@ -1,62 +1,74 @@
-import { db } from '@lifeos/db';
+import type { DbClient } from '@lifeos/db';
+import { getDb } from '@lifeos/db';
 import { newUlid, AppError, systemClock } from '@lifeos/shared';
+import { getServerEnv } from '@lifeos/shared/env';
 import { hashPassword } from './password';
 import { createSession } from './session';
 
 export type SignUpInput = {
-	email: string;
-	password: string;
-	displayName: string;
-	locale?: string;
-	deviceFingerprint: string;
-	userAgent: string;
+  email: string;
+  password: string;
+  displayName: string;
+  locale?: string;
+  userAgent: string;
 };
 
 export type SignUpResult = {
-	sessionId: string;
-	userId: string;
-	workspaceId: string;
-	locale: string;
+  sessionToken: string;
+  userId: string;
+  workspaceId: string;
+  locale: string;
 };
 
 /**
- * Creates a new user + default workspace + initial session in one transaction.
- * Throws AUTH_ACCOUNT_LOCKED with code 409 if email already exists.
+ * Creates a new user + default workspace + membership + initial session in one transaction.
+ * Phase 02 compliant: uses DI DbClient, queries only existing columns.
  */
 export async function signUp(input: SignUpInput): Promise<SignUpResult> {
-	const { email, password, displayName, locale = 'en', deviceFingerprint, userAgent } = input;
+  const { email, password, displayName, locale = 'en', userAgent } = input;
 
-	const existing = await db.oneOrNone<{ id: string }>(
-		`SELECT id FROM users WHERE email = $1 AND is_deleted = false`,
-		[email.toLowerCase()],
-	);
-	if (existing) throw new AppError('AUTH_INVALID_CREDENTIALS', 'Email already in use.');
+  const env = getServerEnv();
+  const dbClient: DbClient = getDb(env.DATABASE_URL);
 
-	const passwordHash = await hashPassword(password);
-	const userId = newUlid();
-	const workspaceId = newUlid();
-	const now = new Date(systemClock.nowMs()).toISOString();
+  // Check email uniqueness (status <> 'deleted' — no is_deleted column)
+  const existing = await dbClient.oneOrNone<{ id: string }>(
+    `SELECT id FROM users WHERE email = $1 AND status <> 'deleted'`,
+    [email.toLowerCase()],
+  );
+  if (existing) throw new AppError('CONFLICT', 'Email already in use.');
 
-	await db.tx(async (t) => {
-		// Create workspace first (users.workspace_id FK)
-		await t.none(
-			`INSERT INTO workspaces (id, name, slug, created_at, updated_at)
-			 VALUES ($1, $2, $3, $4, $4)`,
-			[workspaceId, `${displayName}'s Workspace`, userId, now],
-		);
-		await t.none(
-			`INSERT INTO users (id, workspace_id, email, password_hash, display_name, locale, created_at, updated_at)
-			 VALUES ($1, $2, $3, $4, $5, $6, $7, $7)`,
-			[userId, workspaceId, email.toLowerCase(), passwordHash, displayName, locale, now],
-		);
-		await t.none(
-			`INSERT INTO workspace_members (workspace_id, user_id, role, joined_at)
-			 VALUES ($1, $2, 'owner', $3)`,
-			[workspaceId, userId, now],
-		);
-	});
+  const passwordHash = await hashPassword(password);
+  const userId = newUlid();
+  const workspaceId = newUlid();
+  const now = new Date(systemClock.nowMs()).toISOString();
 
-	const session = await createSession(userId, userAgent);
+  await dbClient.tx(async (tx) => {
+    // 1. Create workspace (no users.workspace_id — workspace is a separate entity)
+    await tx.none(
+      `INSERT INTO workspaces (id, name, slug, created_at, updated_at)
+       VALUES ($1, $2, $3, $4, $4)`,
+      [workspaceId, `${displayName}'s Workspace`, workspaceId, now],
+    );
+    // 2. Create user (only columns from migration 0100)
+    await tx.none(
+      `INSERT INTO users (id, email, password_hash, display_name, created_at, updated_at)
+       VALUES ($1, $2, $3, $4, $5, $5)`,
+      [userId, email.toLowerCase(), passwordHash, displayName, now],
+    );
+    // 3. Create owner membership (workspace_memberships, not workspace_members)
+    await tx.none(
+      `INSERT INTO workspace_memberships (workspace_id, user_id, role, joined_at)
+       VALUES ($1, $2, 'owner', $3)`,
+      [workspaceId, userId, now],
+    );
+    // 4. Create profile
+    await tx.none(
+      `INSERT INTO profiles (user_id) VALUES ($1)`,
+      [userId],
+    );
+  });
 
-	return { sessionId: session.token, userId, workspaceId, locale };
+  const session = await createSession(dbClient, userId, userAgent);
+
+  return { sessionToken: session.token, userId, workspaceId, locale };
 }

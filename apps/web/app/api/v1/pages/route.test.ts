@@ -73,9 +73,9 @@ describe('pages route — POST', () => {
 
   it('calls requireCapability with role and page:create', () => {
     const ctx = mockContext('admin');
-    requireCapability(ctx.role, 'page:create');
+    requireCapability(ctx, 'page:create');
 
-    expect(requireCapability).toHaveBeenCalledWith('admin', 'page:create');
+    expect(requireCapability).toHaveBeenCalledWith(ctx, 'page:create');
   });
 
   it('calls pageService.createPage with correct args', async () => {

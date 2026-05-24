@@ -1,5 +1,7 @@
 
-import { db, type DbClient } from '@lifeos/db';
+import { getDb, type DbClient } from '@lifeos/db';
+import { getServerEnv } from '@lifeos/shared/env';
+
 import { newUlid } from '@lifeos/shared/ids';
 import { AppError } from '@lifeos/shared/errors';
 // Phase 04 will inject the real rotateOnPrivilegeChange via DI.
@@ -9,8 +11,8 @@ async function rotateOnPrivilegeChange(userId: string, tx?: unknown): Promise<vo
 }
 
 export const workspaceService = {
-  listUserWorkspaces: async (userId: string) => {
-    return db.many(
+  listUserWorkspaces: async (dbClient: DbClient, userId: string) => {
+    return dbClient.many(
       `SELECT w.id, w.slug, w.name, wm.role
        FROM workspaces w
        JOIN workspace_memberships wm ON w.id = wm.workspace_id
@@ -19,10 +21,10 @@ export const workspaceService = {
     );
   },
   
-  createWorkspace: async (userId: string, name: string, slug: string) => {
+  createWorkspace: async (dbClient: DbClient, userId: string, name: string, slug: string) => {
     const id = newUlid();
     const memId = newUlid();
-    await db.tx(async (tx: DbClient) => {
+    await dbClient.tx(async (tx: DbClient) => {
       await tx.none(
         `INSERT INTO workspaces (id, slug, name, type, owner_user_id) VALUES ($1, $2, $3, 'team', $4)`,
         [id, slug, name, userId]

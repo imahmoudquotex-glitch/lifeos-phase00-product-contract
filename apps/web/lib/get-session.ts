@@ -1,34 +1,40 @@
 import { cookies } from 'next/headers';
 import { validateSession } from '@lifeos/auth';
+import { getDb } from '@lifeos/db';
+import { getServerEnv } from '@lifeos/shared/env';
 
 export type ServerSession = {
-	userId: string;
-	workspaceId: string;
-	locale: string;
+  userId: string;
+  workspaceId: string | null;
+  locale: string;
 };
 
 /**
- * (3.16) Server-side session retrieval for use in Server Components and route handlers.
+ * Server-side session retrieval for use in Server Components and route handlers.
  * Returns null if no valid session exists.
+ * Reads SESSION_COOKIE_NAME from env (not hardcoded).
  *
  * Usage in Server Component:
  *   const session = await getSession();
  *   if (!session) redirect('/signin');
  */
 export async function getSession(): Promise<ServerSession | null> {
-	const cookieStore = await cookies();
-	const token = cookieStore.get('lifeos_sid')?.value;
-	if (!token) return null;
+  try {
+    const env = getServerEnv();
+    const cookieStore = await cookies();
+    const token = cookieStore.get(env.SESSION_COOKIE_NAME)?.value;
+    if (!token) return null;
 
-	try {
-		const session = await validateSession(token);
-		if (!session) return null;
-		return {
-			userId: session.userId,
-			workspaceId: session.workspaceId,
-			locale: session.locale ?? 'en',
-		};
-	} catch {
-		return null;
-	}
+    const dbClient = getDb(env.DATABASE_URL);
+    const session = await validateSession(dbClient, token);
+    if (!session) return null;
+
+    return {
+      userId: session.userId,
+      workspaceId: session.workspaceId ?? null,
+      locale: session.locale ?? 'en',
+    };
+  } catch {
+    return null;
+  }
 }

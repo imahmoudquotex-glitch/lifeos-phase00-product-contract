@@ -1,19 +1,21 @@
-import { NextResponse } from 'next/server';
-import { withWorkspaceRoute } from '@lifeos/route';
+import { type NextRequest, NextResponse } from 'next/server';
+import { withWorkspaceRoute } from '@lifeos/auth-guard';
 import { membershipService } from '@lifeos/workspaces';
-import { requireCapability } from '@lifeos/auth-guard';
-import type { WorkspaceRole } from '@lifeos/permissions';
 import { envelopeOk } from '@lifeos/shared';
 
-export const PUT = withWorkspaceRoute(async (req, params, context) => {
-  requireCapability(context.role as WorkspaceRole, 'member:update');
-  const { role } = await req.json();
-  const membership = await membershipService.updateRole(context.dbClient, context.workspaceId, params.userId, role);
-  return NextResponse.json(envelopeOk({ membership }));
-});
+type Params = { params: { id: string; userId: string } };
 
-export const DELETE = withWorkspaceRoute(async (_req, params, context) => {
-  requireCapability(context.role as WorkspaceRole, 'member:remove');
-  await membershipService.removeMember(context.dbClient, context.workspaceId, params.userId);
-  return NextResponse.json(envelopeOk({ success: true }));
-});
+export async function PUT(req: NextRequest, { params }: Params) {
+  return withWorkspaceRoute(req, params.id, { csrfProtect: true, capability: 'member:update' }, async (ctx) => {
+    const { role } = await req.json() as { role: string };
+    const membership = await membershipService.updateRole(ctx.tx, ctx.workspaceId, params.userId, role);
+    return NextResponse.json(envelopeOk({ membership }));
+  });
+}
+
+export async function DELETE(req: NextRequest, { params }: Params) {
+  return withWorkspaceRoute(req, params.id, { csrfProtect: true, capability: 'member:remove' }, async (ctx) => {
+    await membershipService.removeMember(ctx.tx, ctx.workspaceId, params.userId);
+    return NextResponse.json(envelopeOk({ success: true }));
+  });
+}

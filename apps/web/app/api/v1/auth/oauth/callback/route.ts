@@ -1,5 +1,6 @@
 import { type NextRequest } from 'next/server';
-import { db } from '@lifeos/db';
+import { getDb } from '@lifeos/db';
+import { getServerEnv } from '@lifeos/shared/env';
 import { systemClock } from '@lifeos/shared';
 
 /**
@@ -27,7 +28,9 @@ export async function GET(req: NextRequest): Promise<Response> {
 
 	// Verify and consume state token (replay protection)
 	try {
-		const stored = await db.oneOrNone<{
+		const env = getServerEnv();
+		const dbClient = getDb(env.DATABASE_URL);
+		const stored = await dbClient.oneOrNone<{
 			state: string;
 			expires_at: Date;
 			consumed_at: Date | null;
@@ -47,7 +50,7 @@ export async function GET(req: NextRequest): Promise<Response> {
 			return Response.redirect(new URL('/signin?error=oauth_state_expired', req.url));
 		}
 
-		await db.none(
+		await dbClient.none(
 			`UPDATE oauth_state_store SET consumed_at = now() WHERE state = $1`,
 			[state],
 		);

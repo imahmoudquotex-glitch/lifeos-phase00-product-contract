@@ -1,9 +1,13 @@
-import { NextResponse } from 'next/server';
-import { withWorkspaceRoute } from '@lifeos/route';
+import { NextResponse, type NextRequest } from 'next/server';
+import { withWorkspaceRoute } from '@lifeos/auth-guard';
 import { pageService } from '@lifeos/pages';
 import { envelopeOk } from '@lifeos/shared';
 
-export const POST = withWorkspaceRoute(async (req, params, context) => {
-  const page = await pageService.archive(context.dbClient, params.id, context.workspaceId);
-  return NextResponse.json(envelopeOk({ page }));
-});
+type Params = { params: { id: string } };
+
+export async function POST(req: NextRequest, { params }: Params) {
+  return withWorkspaceRoute(req, null, { csrfProtect: true, capability: 'page:archive' }, async (ctx) => {
+    const page = await pageService.archive(ctx.tx, params.id, ctx.workspaceId);
+    return NextResponse.json(envelopeOk({ page }));
+  });
+}

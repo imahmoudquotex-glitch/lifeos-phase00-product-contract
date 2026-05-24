@@ -1,81 +1,105 @@
-import { db } from '@lifeos/db';
-import { AppError, systemClock } from '@lifeos/shared';
-import { computeEventHash } from '@lifeos/security';
+import type { DbClient } from '@lifeos/db';
+import { AppError } from '@lifeos/shared/errors';
+import { computeEventHash, GENESIS_HASH } from '@lifeos/security';
 import { verifyPassword } from './password';
 import { createSession } from './session';
+import { userRepo } from './user.repo';
+import { newUlid } from '@lifeos/shared/ids';
+import { systemClock } from '@lifeos/shared/time';
 
 export type SignInResult = {
-	sessionId: string;
-	userId: string;
-	workspaceId: string;
-	locale: string;
+  sessionToken: string;   // raw token to set in cookie
+  sessionId: string;      // token_hash (stable DB id)
+  userId: string;
+  workspaceId: string | null;
+  locale: string;
 };
 
 /**
  * ADR-0026: signInWithPassword facade.
- * Composes verifyPassword + createSession + audit event in one call.
+ * Phase 02 compliant:
+ * - Only queries columns that exist in migration 0100__identity_users.sql
+ * - Workspace resolved via workspace_memberships (not users.workspace_id)
+ * - Audit event columns match 0109__workspace_audit_events.sql (actor_user_id, created_at)
+ * - Uses injected DbClient throughout
+ * - No global db singleton
  */
 export async function signInWithPassword(
-	email: string,
-	password: string,
-	userAgent: string,
+  dbClient: DbClient,
+  email: string,
+  password: string,
+  userAgent: string,
 ): Promise<SignInResult> {
-	const user = await db.oneOrNone<{
-		id: string;
-		workspace_id: string;
-		password_hash: string;
-		locale: string;
-		locked_at: Date | null;
-	}>(
-		`SELECT id, workspace_id, password_hash, locale, locked_at
-		   FROM users WHERE email = $1 AND is_deleted = false`,
-		[email.toLowerCase()],
-	);
+  // Query only columns that exist in the users table (migration 0100)
+  const user = await userRepo.findUserByEmailForLogin(dbClient, email);
 
-	if (!user) throw new AppError('AUTH_INVALID_CREDENTIALS', 'Invalid credentials.');
-	if (user.locked_at) throw new AppError('AUTH_ACCOUNT_LOCKED', 'Account locked. Contact support.');
+  if (!user || !user.password_hash) {
+    throw new AppError('AUTH_INVALID_CREDENTIALS', 'Invalid credentials.');
+  }
 
-	const ok = await verifyPassword(password, user.password_hash);
-	if (!ok) throw new AppError('AUTH_INVALID_CREDENTIALS', 'Invalid credentials.');
+  // status field: 'active' | 'suspended' | 'deleted'
+  if (user.status === 'suspended') {
+    throw new AppError('AUTH_ACCOUNT_LOCKED', 'Account suspended. Contact support.');
+  }
 
-	// createSession(userId, userAgent?) → returns { token, expiresAt }
-	const session = await createSession(user.id, userAgent);
+  const ok = await verifyPassword(password, user.password_hash);
+  if (!ok) throw new AppError('AUTH_INVALID_CREDENTIALS', 'Invalid credentials.');
 
-	// Audit event with hash chain (ADR-0019)
-	const occurredAt = new Date(systemClock.nowMs()).toISOString();
-	const prev = await db.oneOrNone<{ event_hash: string }>(
-		`SELECT event_hash FROM workspace_audit_events
-		   WHERE workspace_id = $1 ORDER BY occurred_at DESC LIMIT 1`,
-		[user.workspace_id],
-	);
-	const prevHash = prev?.event_hash ?? '0'.repeat(64);
-	const evInput = {
-		workspaceId: user.workspace_id,
-		actorId: user.id,
-		eventType: 'auth.signin.success',
-		payload: { userAgent },
-		occurredAt,
-	};
-	const eventHash = computeEventHash(prevHash, evInput);
-	await db.none(
-		`INSERT INTO workspace_audit_events
-		   (workspace_id, actor_id, event_type, payload, occurred_at, prev_hash, event_hash)
-		 VALUES ($1, $2, $3, $4::jsonb, $5, $6, $7)`,
-		[
-			user.workspace_id,
-			user.id,
-			evInput.eventType,
-			JSON.stringify(evInput.payload),
-			occurredAt,
-			prevHash,
-			eventHash,
-		],
-	);
+  // Resolve workspace via workspace_memberships
+  const membership = await dbClient.oneOrNone<{ workspace_id: string }>(
+    `SELECT workspace_id FROM workspace_memberships
+     WHERE user_id = $1
+     ORDER BY joined_at ASC
+     LIMIT 1`,
+    [user.id],
+  );
 
-	return {
-		sessionId: session.token,       // session.token is the raw token (not hash)
-		userId: user.id,
-		workspaceId: user.workspace_id,
-		locale: user.locale,
-	};
+  // Create session with DI
+  const session = await createSession(dbClient, user.id, userAgent);
+
+  // Update last_login_at
+  await userRepo.recordLogin(dbClient, user.id);
+
+  // Audit event — column names match migration 0109 exactly:
+  //   actor_user_id (not actor_id), created_at (not occurred_at)
+  const workspaceId = membership?.workspace_id;
+  if (workspaceId) {
+    const prevRow = await dbClient.oneOrNone<{ event_hash: string }>(
+      `SELECT event_hash FROM workspace_audit_events
+         WHERE workspace_id = $1 ORDER BY created_at DESC LIMIT 1`,
+      [workspaceId],
+    );
+    const prevHash = prevRow?.event_hash ?? GENESIS_HASH;
+    const occurredAt = new Date(systemClock.nowMs()).toISOString();
+    const evInput = {
+      workspaceId,
+      actorId: user.id,
+      eventType: 'auth.signin.success',
+      payload: { userAgent },
+      occurredAt,
+    };
+    const eventHash = computeEventHash(prevHash, evInput);
+    await dbClient.none(
+      `INSERT INTO workspace_audit_events
+         (id, workspace_id, actor_user_id, event_type, payload, event_hash, prev_hash)
+       VALUES ($1, $2, $3, $4, $5::jsonb, $6, $7)`,
+      [
+        newUlid(),
+        workspaceId,
+        user.id,
+        evInput.eventType,
+        JSON.stringify(evInput.payload),
+        eventHash,
+        prevHash,
+      ],
+    );
+  }
+
+  return {
+    sessionToken: session.token,
+    sessionId: session.token,
+    userId: user.id,
+    workspaceId: workspaceId ?? null,
+    locale: 'en', // Phase 02 users table has no locale column; added in 0200
+  };
 }

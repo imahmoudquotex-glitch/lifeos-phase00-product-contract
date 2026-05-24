@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from 'next/server';
-import { db } from '@lifeos/db';
+import { getDb } from '@lifeos/db';
+import { getServerEnv } from '@lifeos/shared/env';
 import { newUlid } from '@lifeos/shared/ids';
 import { consoleLogger as logger } from '@lifeos/shared';
 
@@ -34,7 +35,9 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   logger.warn('csp_violation', { violatedDirective, blockedUri, documentUri });
 
   try {
-    await db.none(
+    const env = getServerEnv();
+    const dbClient = getDb(env.DATABASE_URL);
+    await dbClient.none(
       `INSERT INTO csp_reports (id, violated_directive, blocked_uri, document_uri, source_file, raw_report)
        VALUES ($1, $2, $3, $4, $5, $6)`,
       [

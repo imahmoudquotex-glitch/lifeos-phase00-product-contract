@@ -24,7 +24,7 @@ const handler = async (
 	};
 	try {
 		const ua = req.headers.get('user-agent') ?? '';
-		const result = await signUp({ email, password, displayName, locale: locale ?? 'en', deviceFingerprint: 'unknown', userAgent: ua });
+		const result = await signUp({ email, password, displayName, locale: locale ?? 'en', userAgent: ua });
 
 		const res = Response.json(
 			envelopeOk({ redirectTo: '/app', userId: result.userId }),
@@ -32,7 +32,7 @@ const handler = async (
 		);
 		res.headers.append(
 			'Set-Cookie',
-			`lifeos_sid=${result.sessionId}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${30 * 24 * 3600}`,
+			`lifeos_sid=${result.sessionToken}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${30 * 24 * 3600}`,
 		);
 		return res;
 	} catch (e) {

@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
 import { cookies } from 'next/headers';
-import { validateSession } from '@lifeos/auth';
-import { db } from '@lifeos/db';
+import { getDb } from '@lifeos/db';
+import { getServerEnv } from '@lifeos/shared/env';
+import { getSession } from '../../../lib/get-session';
 import { LocaleSwitcher } from '@lifeos/auth-ui';
 
 export const metadata: Metadata = {
@@ -15,19 +16,20 @@ export const metadata: Metadata = {
  */
 export default async function LocalePage() {
 	const cookieStore = await cookies();
-	const sid = cookieStore.get('lifeos_sid')?.value ?? '';
-	const session = await validateSession(sid);
+	const session = await getSession();
 	const csrfToken = cookieStore.get('lifeos_csrf')?.value ?? '';
 
 	// Fetch current locale
-	const user = session
-		? await db.oneOrNone<{ locale: string }>(
-				`SELECT locale FROM users WHERE id = $1`,
-				[session.userId],
-			)
-		: null;
-
-	const currentLocale = user?.locale ?? 'en';
+	let currentLocale = 'en';
+	if (session) {
+		const env = getServerEnv();
+		const dbClient = getDb(env.DATABASE_URL);
+		const user = await dbClient.oneOrNone<{ locale: string }>(
+			`SELECT locale FROM users WHERE id = $1`,
+			[session.userId],
+		);
+		currentLocale = user?.locale ?? 'en';
+	}
 
 	return (
 		<div className="settings-page">

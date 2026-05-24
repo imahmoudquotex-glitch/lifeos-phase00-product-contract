@@ -1,10 +1,12 @@
 import { type DbClient } from '@lifeos/db';
 
 export const pageService = {
-  createPage: async (db: DbClient, params: { workspaceId: string, title: string, parentId?: string | null }) => {
+  createPage: async (db: DbClient, params: { workspaceId: string; title: string; parentId?: string | null; createdBy?: string }) => {
     return db.one(
-      `INSERT INTO pages (workspace_id, title, parent_id) VALUES ($1, $2, $3) RETURNING id`,
-      [params.workspaceId, params.title, params.parentId || null]
+      `INSERT INTO pages (workspace_id, title, parent_id, created_by)
+       VALUES ($1, $2, $3, $4)
+       RETURNING id, workspace_id, title, parent_id, created_by, created_at`,
+      [params.workspaceId, params.title, params.parentId ?? null, params.createdBy ?? null]
     );
   },
   findById: async (db: DbClient, pageId: string, workspaceId: string) => {
@@ -33,8 +35,11 @@ export const pageService = {
     );
   },
   getTree: async (db: DbClient, workspaceId: string) => {
-    return db.any(
-      `SELECT id, parent_id, title FROM pages WHERE workspace_id = $1 AND archived_at IS NULL ORDER BY created_at ASC`,
+    // Use many() — any() was removed from DbClient in Phase 01 contract fix
+    return db.many(
+      `SELECT id, parent_id, title, created_at FROM pages
+       WHERE workspace_id = $1 AND archived_at IS NULL
+       ORDER BY created_at ASC`,
       [workspaceId]
     );
   }

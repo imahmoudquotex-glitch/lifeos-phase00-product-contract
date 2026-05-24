@@ -3,6 +3,8 @@ import { userRepo } from '@lifeos/auth';
 import { hashPassword } from '@lifeos/auth';
 import { newUlid } from '@lifeos/shared/ids';
 import { AppError } from '@lifeos/shared/errors';
+import { getDb } from '@lifeos/db';
+import { getServerEnv } from '@lifeos/shared/env';
 
 export async function POST(req: NextRequest) {
   try {
@@ -11,8 +13,10 @@ export async function POST(req: NextRequest) {
     
     const id = newUlid();
     const hash = await hashPassword(password);
+    const env = getServerEnv();
+    const dbClient = getDb(env.DATABASE_URL);
     
-    await userRepo.createUser(id, email, hash, displayName || '');
+    await userRepo.createUser(dbClient, email, hash, displayName || '');
     
     return NextResponse.json({ ok: true, data: { userId: id } });
   } catch (err: any) {

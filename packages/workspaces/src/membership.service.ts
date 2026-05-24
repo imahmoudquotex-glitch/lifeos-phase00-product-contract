@@ -19,7 +19,7 @@ export const membershipService = {
   },
 
   listMembers: async (db: DbClient, workspaceId: string) => {
-    return db.any(
+    return db.many(
       `SELECT m.id, m.user_id, m.role, u.email, u.display_name
        FROM workspace_memberships m
        JOIN users u ON m.user_id = u.id

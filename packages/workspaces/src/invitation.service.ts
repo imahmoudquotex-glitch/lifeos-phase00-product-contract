@@ -23,7 +23,7 @@ export const invitationService = {
   },
   
   listByWorkspace: async (db: DbClient, workspaceId: string) => {
-    return db.any(
+    return db.many(
       `SELECT * FROM workspace_invitations 
        WHERE workspace_id = $1 
          AND accepted_at IS NULL 
@@ -50,7 +50,7 @@ export const invitationService = {
   accept: async (db: DbClient, userId: string, rawToken: string) => {
     const tokenHash = hashInvitationToken(rawToken);
     return db.tx(async (tx) => {
-      const inv = await tx.one(
+      const inv = await tx.one<{ workspace_id: string; role: string }>(
         `UPDATE workspace_invitations SET accepted_at = now() 
          WHERE token_hash = $1 
            AND accepted_at IS NULL 
@@ -61,7 +61,7 @@ export const invitationService = {
       );
       return tx.one(
         `INSERT INTO workspace_memberships (id, workspace_id, user_id, role) VALUES ($1, $2, $3, $4) RETURNING id`,
-        [newUlid(), (inv as any).workspace_id, userId, (inv as any).role]
+        [newUlid(), inv.workspace_id, userId, inv.role]
       );
     });
   },
