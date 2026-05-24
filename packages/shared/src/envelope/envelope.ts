@@ -53,6 +53,25 @@ export const STATUS_MAP: Partial<Record<ErrorCode, number>> = {
 	BUDGET_EXCEEDED: 422,
 	// 429 – quota / rate
 	AI_QUOTA_EXCEEDED: 429,
+
+	// ─── Phase 04 ────────────────────────────────────────────────────────────
+	// Vault crypto
+	VAULT_DECRYPT_FAILED: 500,
+	VAULT_MASTER_KEY_INVALID: 400,
+	VAULT_ITEM_KEY_INVALID: 400,
+	// CSRF
+	CSRF_TOKEN_INVALID: 403,
+	CSRF_TOKEN_MISSING: 403,
+	// CSP
+	CSP_VIOLATION_REPORT: 400,
+	// Offline / outbox
+	OFFLINE_NETWORK_UNAVAILABLE: 503,
+	OUTBOX_BODY_HASH_MISMATCH: 400,
+	// Audit chain
+	AUDIT_CHAIN_BROKEN: 500,
+	// OAuth
+	OAUTH_STATE_INVALID: 400,
+	OAUTH_STATE_EXPIRED: 410,
 };
 
 export function statusForError(e: unknown): number {
