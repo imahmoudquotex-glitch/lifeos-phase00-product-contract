@@ -1,62 +1,241 @@
-export type WorkspaceRole = 'owner' | 'admin' | 'member' | 'viewer';
+export type WorkspaceRole = 'owner' | 'admin' | 'member' | 'viewer' | 'guest';
 
 export const CAPABILITIES = {
-  WORKSPACE_UPDATE: 'workspace:update',
-  WORKSPACE_DELETE: 'workspace:delete',
-  MEMBER_LIST: 'member:list',
-  MEMBER_UPDATE: 'member:update',
-  MEMBER_INVITE: 'member:invite',
-  MEMBER_REMOVE: 'member:remove',
-  INVITATION_LIST: 'invitation:list',
-  INVITATION_CREATE: 'invitation:create',
-  INVITATION_REVOKE: 'invitation:revoke',
-  PAGE_VIEW: 'page:view',
-  PAGE_CREATE: 'page:create',
-  PAGE_UPDATE: 'page:update',
-  PAGE_DELETE: 'page:delete',
+	// ─── Workspace / Member / Invitation ────────────────────────────────────
+	WORKSPACE_UPDATE: 'workspace:update',
+	WORKSPACE_DELETE: 'workspace:delete',
+	MEMBER_LIST: 'member:list',
+	MEMBER_UPDATE: 'member:update',
+	MEMBER_INVITE: 'member:invite',
+	MEMBER_REMOVE: 'member:remove',
+	INVITATION_LIST: 'invitation:list',
+	INVITATION_CREATE: 'invitation:create',
+	INVITATION_REVOKE: 'invitation:revoke',
+
+	// ─── Pages ──────────────────────────────────────────────────────────────
+	PAGE_VIEW: 'page:view',
+	PAGE_CREATE: 'page:create',
+	PAGE_UPDATE: 'page:update',
+	PAGE_DELETE: 'page:delete',
+
+	// ─── Phase 03: Tasks ────────────────────────────────────────────────────
+	TASK_CREATE: 'task:create',
+	TASK_UPDATE: 'task:update',
+	TASK_DELETE: 'task:delete',
+
+	// ─── Phase 03: Notes ────────────────────────────────────────────────────
+	NOTE_CREATE: 'note:create',
+	NOTE_UPDATE: 'note:update',
+	NOTE_DELETE: 'note:delete',
+	NOTE_READ_VERSION_HISTORY: 'note:read-version-history',
+
+	// ─── Phase 03: Habits ───────────────────────────────────────────────────
+	HABIT_CREATE: 'habit:create',
+	HABIT_UPDATE: 'habit:update',
+	HABIT_DELETE: 'habit:delete',
+	HABIT_CHECKIN: 'habit:checkin',
+
+	// ─── Phase 03: Expenses ─────────────────────────────────────────────────
+	EXPENSE_CREATE: 'expense:create',
+	EXPENSE_UPDATE: 'expense:update',
+	EXPENSE_DELETE: 'expense:delete',
+
+	// ─── Phase 03: Budget (admin-gated) ─────────────────────────────────────
+	BUDGET_SET: 'budget:set',
+
+	// ─── Phase 03: Calendar ─────────────────────────────────────────────────
+	CALENDAR_CREATE: 'calendar:create',
+	CALENDAR_UPDATE: 'calendar:update',
+	CALENDAR_DELETE: 'calendar:delete',
+
+	// ─── Phase 03: Vault ────────────────────────────────────────────────────
+	VAULT_READ_META: 'vault:read-meta',
+	VAULT_CREATE_META: 'vault:create-meta',
+
+	// ─── Phase 03: AI ───────────────────────────────────────────────────────
+	AI_USE: 'ai:use',
+
+	// ─── Phase 03: XP / Reviews ─────────────────────────────────────────────
+	XP_AWARD: 'xp:award',
+	REVIEW_WRITE: 'review:write',
+
+	// ─── Phase 03: Import ───────────────────────────────────────────────────
+	IMPORT_START: 'import:start',
+	IMPORT_READ: 'import:read',
+
+	// ─── Phase 03: Share ────────────────────────────────────────────────────
+	SHARE_CREATE: 'share:create',
+	SHARE_REVOKE: 'share:revoke',
 } as const;
 
-export type Capability = typeof CAPABILITIES[keyof typeof CAPABILITIES];
+export type Capability = (typeof CAPABILITIES)[keyof typeof CAPABILITIES];
 
 export const ROLE_CAPABILITIES: Record<WorkspaceRole, Capability[]> = {
-  owner: [
-    CAPABILITIES.WORKSPACE_UPDATE,
-    CAPABILITIES.WORKSPACE_DELETE,
-    CAPABILITIES.MEMBER_LIST,
-    CAPABILITIES.MEMBER_UPDATE,
-    CAPABILITIES.MEMBER_INVITE,
-    CAPABILITIES.MEMBER_REMOVE,
-    CAPABILITIES.INVITATION_LIST,
-    CAPABILITIES.INVITATION_CREATE,
-    CAPABILITIES.INVITATION_REVOKE,
-    CAPABILITIES.PAGE_VIEW,
-    CAPABILITIES.PAGE_CREATE,
-    CAPABILITIES.PAGE_UPDATE,
-    CAPABILITIES.PAGE_DELETE,
-  ],
-  admin: [
-    CAPABILITIES.WORKSPACE_UPDATE,
-    CAPABILITIES.MEMBER_LIST,
-    CAPABILITIES.MEMBER_UPDATE,
-    CAPABILITIES.MEMBER_INVITE,
-    CAPABILITIES.MEMBER_REMOVE,
-    CAPABILITIES.INVITATION_LIST,
-    CAPABILITIES.INVITATION_CREATE,
-    CAPABILITIES.INVITATION_REVOKE,
-    CAPABILITIES.PAGE_VIEW,
-    CAPABILITIES.PAGE_CREATE,
-    CAPABILITIES.PAGE_UPDATE,
-    CAPABILITIES.PAGE_DELETE,
-  ],
-  member: [
-    CAPABILITIES.MEMBER_LIST,
-    CAPABILITIES.INVITATION_LIST,
-    CAPABILITIES.PAGE_VIEW,
-    CAPABILITIES.PAGE_CREATE,
-    CAPABILITIES.PAGE_UPDATE,
-  ],
-  viewer: [
-    CAPABILITIES.MEMBER_LIST,
-    CAPABILITIES.PAGE_VIEW,
-  ]
+	owner: [
+		// Workspace
+		CAPABILITIES.WORKSPACE_UPDATE,
+		CAPABILITIES.WORKSPACE_DELETE,
+		CAPABILITIES.MEMBER_LIST,
+		CAPABILITIES.MEMBER_UPDATE,
+		CAPABILITIES.MEMBER_INVITE,
+		CAPABILITIES.MEMBER_REMOVE,
+		CAPABILITIES.INVITATION_LIST,
+		CAPABILITIES.INVITATION_CREATE,
+		CAPABILITIES.INVITATION_REVOKE,
+		// Pages
+		CAPABILITIES.PAGE_VIEW,
+		CAPABILITIES.PAGE_CREATE,
+		CAPABILITIES.PAGE_UPDATE,
+		CAPABILITIES.PAGE_DELETE,
+		// Tasks
+		CAPABILITIES.TASK_CREATE,
+		CAPABILITIES.TASK_UPDATE,
+		CAPABILITIES.TASK_DELETE,
+		// Notes
+		CAPABILITIES.NOTE_CREATE,
+		CAPABILITIES.NOTE_UPDATE,
+		CAPABILITIES.NOTE_DELETE,
+		CAPABILITIES.NOTE_READ_VERSION_HISTORY,
+		// Habits
+		CAPABILITIES.HABIT_CREATE,
+		CAPABILITIES.HABIT_UPDATE,
+		CAPABILITIES.HABIT_DELETE,
+		CAPABILITIES.HABIT_CHECKIN,
+		// Expenses
+		CAPABILITIES.EXPENSE_CREATE,
+		CAPABILITIES.EXPENSE_UPDATE,
+		CAPABILITIES.EXPENSE_DELETE,
+		// Budget
+		CAPABILITIES.BUDGET_SET,
+		// Calendar
+		CAPABILITIES.CALENDAR_CREATE,
+		CAPABILITIES.CALENDAR_UPDATE,
+		CAPABILITIES.CALENDAR_DELETE,
+		// Vault
+		CAPABILITIES.VAULT_READ_META,
+		CAPABILITIES.VAULT_CREATE_META,
+		// AI
+		CAPABILITIES.AI_USE,
+		// XP / Reviews
+		CAPABILITIES.XP_AWARD,
+		CAPABILITIES.REVIEW_WRITE,
+		// Import
+		CAPABILITIES.IMPORT_START,
+		CAPABILITIES.IMPORT_READ,
+		// Share
+		CAPABILITIES.SHARE_CREATE,
+		CAPABILITIES.SHARE_REVOKE,
+	],
+
+	admin: [
+		// Workspace (no delete)
+		CAPABILITIES.WORKSPACE_UPDATE,
+		CAPABILITIES.MEMBER_LIST,
+		CAPABILITIES.MEMBER_UPDATE,
+		CAPABILITIES.MEMBER_INVITE,
+		CAPABILITIES.MEMBER_REMOVE,
+		CAPABILITIES.INVITATION_LIST,
+		CAPABILITIES.INVITATION_CREATE,
+		CAPABILITIES.INVITATION_REVOKE,
+		// Pages
+		CAPABILITIES.PAGE_VIEW,
+		CAPABILITIES.PAGE_CREATE,
+		CAPABILITIES.PAGE_UPDATE,
+		CAPABILITIES.PAGE_DELETE,
+		// Tasks
+		CAPABILITIES.TASK_CREATE,
+		CAPABILITIES.TASK_UPDATE,
+		CAPABILITIES.TASK_DELETE,
+		// Notes
+		CAPABILITIES.NOTE_CREATE,
+		CAPABILITIES.NOTE_UPDATE,
+		CAPABILITIES.NOTE_DELETE,
+		CAPABILITIES.NOTE_READ_VERSION_HISTORY,
+		// Habits
+		CAPABILITIES.HABIT_CREATE,
+		CAPABILITIES.HABIT_UPDATE,
+		CAPABILITIES.HABIT_DELETE,
+		CAPABILITIES.HABIT_CHECKIN,
+		// Expenses
+		CAPABILITIES.EXPENSE_CREATE,
+		CAPABILITIES.EXPENSE_UPDATE,
+		CAPABILITIES.EXPENSE_DELETE,
+		// Budget (admin-gated)
+		CAPABILITIES.BUDGET_SET,
+		// Calendar
+		CAPABILITIES.CALENDAR_CREATE,
+		CAPABILITIES.CALENDAR_UPDATE,
+		CAPABILITIES.CALENDAR_DELETE,
+		// Vault
+		CAPABILITIES.VAULT_READ_META,
+		CAPABILITIES.VAULT_CREATE_META,
+		// AI
+		CAPABILITIES.AI_USE,
+		// XP / Reviews
+		CAPABILITIES.XP_AWARD,
+		CAPABILITIES.REVIEW_WRITE,
+		// Import
+		CAPABILITIES.IMPORT_START,
+		CAPABILITIES.IMPORT_READ,
+		// Share
+		CAPABILITIES.SHARE_CREATE,
+		CAPABILITIES.SHARE_REVOKE,
+	],
+
+	member: [
+		// Workspace (read-only membership)
+		CAPABILITIES.MEMBER_LIST,
+		CAPABILITIES.INVITATION_LIST,
+		// Pages
+		CAPABILITIES.PAGE_VIEW,
+		CAPABILITIES.PAGE_CREATE,
+		CAPABILITIES.PAGE_UPDATE,
+		// Tasks
+		CAPABILITIES.TASK_CREATE,
+		CAPABILITIES.TASK_UPDATE,
+		CAPABILITIES.TASK_DELETE,
+		// Notes
+		CAPABILITIES.NOTE_CREATE,
+		CAPABILITIES.NOTE_UPDATE,
+		CAPABILITIES.NOTE_DELETE,
+		CAPABILITIES.NOTE_READ_VERSION_HISTORY,
+		// Habits
+		CAPABILITIES.HABIT_CREATE,
+		CAPABILITIES.HABIT_UPDATE,
+		CAPABILITIES.HABIT_DELETE,
+		CAPABILITIES.HABIT_CHECKIN,
+		// Expenses
+		CAPABILITIES.EXPENSE_CREATE,
+		CAPABILITIES.EXPENSE_UPDATE,
+		CAPABILITIES.EXPENSE_DELETE,
+		// Calendar
+		CAPABILITIES.CALENDAR_CREATE,
+		CAPABILITIES.CALENDAR_UPDATE,
+		CAPABILITIES.CALENDAR_DELETE,
+		// Vault (read-only meta)
+		CAPABILITIES.VAULT_READ_META,
+		// AI
+		CAPABILITIES.AI_USE,
+		// Reviews
+		CAPABILITIES.REVIEW_WRITE,
+		// Import
+		CAPABILITIES.IMPORT_READ,
+		// Share
+		CAPABILITIES.SHARE_CREATE,
+	],
+
+	// viewer / guest – read-only access
+	viewer: [
+		CAPABILITIES.MEMBER_LIST,
+		CAPABILITIES.PAGE_VIEW,
+		CAPABILITIES.VAULT_READ_META,
+		CAPABILITIES.IMPORT_READ,
+	],
+
+	guest: [
+		CAPABILITIES.MEMBER_LIST,
+		CAPABILITIES.PAGE_VIEW,
+		CAPABILITIES.VAULT_READ_META,
+		CAPABILITIES.IMPORT_READ,
+	],
 };

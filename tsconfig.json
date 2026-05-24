@@ -5,6 +5,9 @@
     { "path": "packages/result" },
     { "path": "packages/db" },
     { "path": "packages/route" },
+    { "path": "packages/permissions" },
+    { "path": "packages/repo" },
+    { "path": "packages/services" },
     { "path": "apps/web" },
     { "path": "apps/worker" }
   ]
