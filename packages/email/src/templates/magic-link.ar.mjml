@@ -1,0 +1,38 @@
+<!-- subject: رابط الدخول الفوري — LifeOS -->
+<mjml>
+	<mj-head>
+		<mj-attributes>
+			<mj-all font-family="Tahoma, Cairo, Arial, sans-serif" />
+			<mj-text color="#fafafa" line-height="1.6" />
+		</mj-attributes>
+	</mj-head>
+	<mj-body background-color="#0a0a0a">
+		<mj-section background-color="#131313" border-radius="12px" padding="32px 24px">
+			<mj-column>
+				<mj-text font-size="22px" font-weight="700" align="right" color="#60a5fa">
+					⚡ رابط الدخول الفوري
+				</mj-text>
+				<mj-divider border-color="#262626" border-width="1px" padding="12px 0" />
+				<mj-text font-size="15px" align="right">
+					مرحباً {name}، اضغط الزر للدخول الفوري إلى LifeOS (صالح لمدة 15 دقيقة):
+				</mj-text>
+				<mj-button
+					background-color="#4ade80"
+					color="#0a0a0a"
+					font-size="15px"
+					font-weight="700"
+					border-radius="8px"
+					padding="14px 28px"
+					href="{magicUrl}"
+					align="right"
+				>
+					ادخل الآن ←
+				</mj-button>
+				<mj-text font-size="12px" color="#6b7280" align="right" padding-top="24px">
+					هذا الرابط صالح لمرة واحدة فقط وينتهي خلال 15 دقيقة.
+					أُرسل إلى: {email}
+				</mj-text>
+			</mj-column>
+		</mj-section>
+	</mj-body>
+</mjml>

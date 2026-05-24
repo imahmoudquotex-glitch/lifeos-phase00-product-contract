@@ -16,8 +16,11 @@
     "react-dom": "^18.2.0",
     "@lifeos/auth": "workspace:*",
     "@lifeos/auth-guard": "workspace:*",
+    "@lifeos/auth-ui": "workspace:*",
     "@lifeos/db": "workspace:*",
     "@lifeos/permissions": "workspace:*",
+    "@lifeos/security": "workspace:*",
+    "@lifeos/web-guards": "workspace:*",
     "@lifeos/workspaces": "workspace:*",
     "@lifeos/pages": "workspace:*"
   },

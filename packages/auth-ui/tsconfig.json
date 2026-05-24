@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true,
+    "jsx": "preserve",
+    "rootDir": "src",
+    "outDir": "dist",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "paths": {
+      "next/navigation": ["../../node_modules/next/navigation"]
+    }
+  },
+  "include": ["src/**/*"]
+}

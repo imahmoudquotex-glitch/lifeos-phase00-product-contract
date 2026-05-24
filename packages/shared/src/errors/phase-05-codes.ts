@@ -1,0 +1,41 @@
+/**
+ * Phase 05 AppError codes — declaration merging on ErrorCodeRegistry.
+ * Cumulative total after Phase 05: 38 error codes.
+ * New codes: 8 (AUTH_INVALID_CREDENTIALS, AUTH_RATE_LIMITED, AUTH_ACCOUNT_LOCKED,
+ *             OAUTH_CALLBACK_FAILED, SESSION_REVOKED, LOCALE_NOT_SUPPORTED,
+ *             CAPTCHA_REQUIRED, EMAIL_TEMPLATE_NOT_FOUND)
+ */
+import type { ErrorCodeRegistry } from './registry';
+
+declare module './registry' {
+	interface ErrorCodeRegistry {
+		AUTH_INVALID_CREDENTIALS: true;
+		AUTH_RATE_LIMITED: true;
+		AUTH_ACCOUNT_LOCKED: true;
+		OAUTH_CALLBACK_FAILED: true;
+		SESSION_REVOKED: true;
+		LOCALE_NOT_SUPPORTED: true;
+		CAPTCHA_REQUIRED: true;
+		EMAIL_TEMPLATE_NOT_FOUND: true;
+	}
+}
+
+export const PHASE_05_STATUS_MAP = {
+	AUTH_INVALID_CREDENTIALS: 401,
+	AUTH_RATE_LIMITED: 429,
+	AUTH_ACCOUNT_LOCKED: 423,
+	OAUTH_CALLBACK_FAILED: 400,
+	SESSION_REVOKED: 401,
+	LOCALE_NOT_SUPPORTED: 400,
+	CAPTCHA_REQUIRED: 403,
+	EMAIL_TEMPLATE_NOT_FOUND: 500,
+} as const satisfies Record<keyof Pick<ErrorCodeRegistry,
+	| 'AUTH_INVALID_CREDENTIALS'
+	| 'AUTH_RATE_LIMITED'
+	| 'AUTH_ACCOUNT_LOCKED'
+	| 'OAUTH_CALLBACK_FAILED'
+	| 'SESSION_REVOKED'
+	| 'LOCALE_NOT_SUPPORTED'
+	| 'CAPTCHA_REQUIRED'
+	| 'EMAIL_TEMPLATE_NOT_FOUND'
+>, number>;

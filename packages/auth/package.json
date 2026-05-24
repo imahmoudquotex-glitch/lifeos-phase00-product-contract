@@ -30,6 +30,7 @@
   "dependencies": {
     "@lifeos/db": "workspace:*",
     "@lifeos/permissions": "workspace:*",
+    "@lifeos/security": "workspace:*",
     "@lifeos/shared": "workspace:*",
     "bcryptjs": "^3.0.3"
   },

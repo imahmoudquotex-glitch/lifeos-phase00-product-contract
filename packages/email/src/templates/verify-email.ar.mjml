@@ -1,0 +1,38 @@
+<!-- subject: تأكيد بريدك الإلكتروني — LifeOS -->
+<mjml>
+	<mj-head>
+		<mj-attributes>
+			<mj-all font-family="Tahoma, Cairo, Arial, sans-serif" />
+			<mj-text color="#fafafa" line-height="1.6" />
+		</mj-attributes>
+	</mj-head>
+	<mj-body background-color="#0a0a0a">
+		<mj-section background-color="#131313" border-radius="12px" padding="32px 24px">
+			<mj-column>
+				<mj-text font-size="22px" font-weight="700" align="right" color="#a78bfa">
+					✉️ تأكيد البريد الإلكتروني
+				</mj-text>
+				<mj-divider border-color="#262626" border-width="1px" padding="12px 0" />
+				<mj-text font-size="15px" align="right">
+					شكراً {name}! اضغط الزر أدناه لتأكيد بريدك الإلكتروني وتفعيل حسابك:
+				</mj-text>
+				<mj-button
+					background-color="#7c3aed"
+					color="#ffffff"
+					font-size="15px"
+					font-weight="600"
+					border-radius="8px"
+					padding="14px 28px"
+					href="{verifyUrl}"
+					align="right"
+				>
+					تأكيد البريد الإلكتروني ←
+				</mj-button>
+				<mj-text font-size="12px" color="#6b7280" align="right" padding-top="24px">
+					هذا الرابط صالح لمدة 24 ساعة.
+					أُرسل إلى: {email}
+				</mj-text>
+			</mj-column>
+		</mj-section>
+	</mj-body>
+</mjml>
