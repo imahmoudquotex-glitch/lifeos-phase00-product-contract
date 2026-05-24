@@ -9,6 +9,6 @@ export const POST = withApiErrorHandling(async (req: Request) => {
   const userId = await consumePasswordReset(db, token);
   const hash = await hashPassword(newPassword);
   await userRepo.updatePassword(userId, hash);
-  await rotateOnPrivilegeChange(db, userId);
+  await rotateOnPrivilegeChange(userId);
   return NextResponse.json(envelopeOk({ ok: true }));
 });

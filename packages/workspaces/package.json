@@ -15,6 +15,7 @@
     "build": "tsc -b"
   },
   "dependencies": {
+    "@lifeos/auth": "workspace:*",
     "@lifeos/shared": "workspace:*",
     "@lifeos/db": "workspace:*",
     "@lifeos/permissions": "workspace:*"

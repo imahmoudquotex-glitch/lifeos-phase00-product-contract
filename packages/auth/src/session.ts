@@ -59,3 +59,12 @@ export async function revokeSession(token: string) {
     [tokenHash]
   );
 }
+
+export async function rotateOnPrivilegeChange(userId: string, tx?: any) {
+  const client = tx || db;
+  await client.none(
+    `UPDATE sessions SET revoked_at = now() WHERE user_id = $1 AND revoked_at IS NULL`,
+    [userId]
+  );
+}
+
