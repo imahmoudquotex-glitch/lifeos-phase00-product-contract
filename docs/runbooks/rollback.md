@@ -50,3 +50,8 @@ Each phase appends its own subsection here as part of its Definition of Done.
 - Rollback = redeploy the previous tag (none yet; this is the first phase that produces deployable code).
 - No DB migrations, no external providers.
 - Removing `phase-01-locked` tag is **forbidden**; superseding tag MUST be `phase-01-locked-revoked` with an ADR.
+
+### Phase 02 — Kernel
+- DB Migrations `0100` to `0118` applied. 
+- Rollback = Check footer in each `.sql` file in `packages/db/migrations/` and apply the `DROP` commands sequentially in reverse order.
+- This includes dropping RLS policies, tables (`pages`, `workspace_*`, `sessions`, `users`), and indexes.
