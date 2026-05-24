@@ -44,9 +44,38 @@ const nextConfig = {
     ];
   },
 
-  // Phase 04: native crypto packages used in vault-crypto/security — exclude from bundling
+  // Phase 04/05: server-only packages that use node: built-ins — exclude from client bundle
   experimental: {
-    serverComponentsExternalPackages: ['@noble/ciphers', '@noble/hashes'],
+    serverComponentsExternalPackages: [
+      '@noble/ciphers',
+      '@noble/hashes',
+      'argon2',
+      'mjml',
+      'pg',
+      'pg-promise',
+      '@lifeos/db',
+      '@lifeos/auth',
+      '@lifeos/security',
+      '@lifeos/vault-crypto',
+      '@lifeos/email',
+    ],
+  },
+
+  // Webpack: handle node: URI scheme for server components
+  webpack(config, { isServer }) {
+    if (!isServer) {
+      // Client bundle: stub out server-only node built-ins
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        crypto: false,
+        fs: false,
+        path: false,
+        os: false,
+        stream: false,
+        buffer: false,
+      };
+    }
+    return config;
   },
 };
 

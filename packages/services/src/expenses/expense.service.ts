@@ -1,5 +1,5 @@
 import { AppError } from '@lifeos/shared';
-import { assertCapability, type Actor } from '@lifeos/permissions';
+import { assertCapability, actorUserId, type Actor } from '@lifeos/permissions';
 import type { DbClient } from '@lifeos/db';
 import { ExpenseRepo } from './expense.repo';
 import { BudgetRepo } from './budget.repo';
@@ -27,7 +27,7 @@ export class ExpenseService {
 		}
 		return this.expenses.createWithBudgetCheck({
 			workspaceId: actor.workspaceId,
-			createdBy: actor.userId,
+			createdBy: actorUserId(actor),
 			...input,
 		});
 	}

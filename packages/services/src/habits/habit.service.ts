@@ -1,5 +1,5 @@
 import { AppError } from '@lifeos/shared';
-import { assertCapability, type Actor } from '@lifeos/permissions';
+import { assertCapability, actorUserId, type Actor } from '@lifeos/permissions';
 import type { DbClient } from '@lifeos/db';
 import { HabitRepo } from './habit.repo';
 import type { Habit, HabitCheckin } from './habit.types';
@@ -15,7 +15,7 @@ export class HabitService {
 		assertCapability(actor, 'habit:create');
 		return this.repo.create({
 			workspaceId: actor.workspaceId,
-			createdBy: actor.userId,
+			createdBy: actorUserId(actor),
 			...input,
 		});
 	}
@@ -32,9 +32,9 @@ export class HabitService {
 			return await this.repo.createCheckin({
 				habitId,
 				workspaceId: actor.workspaceId,
-				userId: actor.userId,
+				userId: actorUserId(actor),
 				checkinDate,
-				note,
+				...(note ? { note } : {}),
 			});
 		} catch (e: unknown) {
 			if (this.isUniqueViolation(e, 'uq_habit_checkin_day')) {

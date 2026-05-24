@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { sealEnvelope, openEnvelope, VaultEnvelope } from '../src/envelope';
+import { sealEnvelope, openEnvelope, type VaultEnvelope } from '../src/envelope';
 import { generateItemKey } from '../src/item-key';
 import { AppError } from '@lifeos/shared';
 

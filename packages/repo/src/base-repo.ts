@@ -7,7 +7,7 @@ export abstract class BaseRepo<TEntity, TRow = TEntity> {
 	 * Set to false in subclasses for append-only or non-soft-delete tables
 	 * (note_versions, habit_checkins, xp_events, daily_reviews, webhook_nonces).
 	 */
-	protected readonly softDelete: boolean = true;
+	protected readonly hasSoftDelete: boolean = true;
 	protected abstract mapRow(row: TRow): TEntity;
 
 	constructor(protected readonly db: DbClient) {}
@@ -23,7 +23,7 @@ export abstract class BaseRepo<TEntity, TRow = TEntity> {
 	}
 
 	protected deletedFilter(): string {
-		return this.softDelete ? 'AND is_deleted = false' : '';
+		return this.hasSoftDelete ? 'AND is_deleted = false' : '';
 	}
 
 	async findById(id: string, workspaceId: string): Promise<TEntity | null> {
@@ -51,3 +51,4 @@ export abstract class BaseRepo<TEntity, TRow = TEntity> {
 		return { items, nextCursor };
 	}
 }
+

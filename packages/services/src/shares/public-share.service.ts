@@ -1,5 +1,5 @@
 import { AppError, newUlid } from '@lifeos/shared';
-import { assertCapability, type Actor } from '@lifeos/permissions';
+import { assertCapability, actorUserId, type Actor } from '@lifeos/permissions';
 import type { DbClient } from '@lifeos/db';
 import { PublicShareRepo, type PublicShare } from './public-share.repo';
 
@@ -19,7 +19,7 @@ export class PublicShareService {
 		const rawToken = newUlid();
 		const share = await this.repo.create({
 			workspaceId: actor.workspaceId,
-			createdBy: actor.userId,
+			createdBy: actorUserId(actor),
 			rawToken,
 			...input,
 		});

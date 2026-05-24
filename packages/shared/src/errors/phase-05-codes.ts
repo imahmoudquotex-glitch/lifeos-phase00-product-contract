@@ -5,9 +5,9 @@
  *             OAUTH_CALLBACK_FAILED, SESSION_REVOKED, LOCALE_NOT_SUPPORTED,
  *             CAPTCHA_REQUIRED, EMAIL_TEMPLATE_NOT_FOUND)
  */
-import type { ErrorCodeRegistry } from './registry';
+import type { ErrorCodeRegistry } from './codes';
 
-declare module './registry' {
+declare module './codes' {
 	interface ErrorCodeRegistry {
 		AUTH_INVALID_CREDENTIALS: true;
 		AUTH_RATE_LIMITED: true;

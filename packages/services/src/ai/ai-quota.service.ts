@@ -1,5 +1,5 @@
 import { AppError, newUlid } from '@lifeos/shared';
-import { assertCapability, type Actor } from '@lifeos/permissions';
+import { assertCapability, actorUserId, type Actor } from '@lifeos/permissions';
 import type { DbClient } from '@lifeos/db';
 import { AiQuotaRepo } from './ai-quota.repo';
 import type { AiUsageEvent } from './ai.types';
@@ -18,7 +18,7 @@ export class AiQuotaService {
 		assertCapability(actor, 'ai:use');
 		const eventId = newUlid();
 		try {
-			return await this.repo.reserve(eventId, actor.workspaceId, actor.userId, input.idempotencyKey, input.tokens);
+			return await this.repo.reserve(eventId, actor.workspaceId, actorUserId(actor), input.idempotencyKey, input.tokens);
 		} catch (e) {
 			const code = this.pgCode(e);
 			if (code === 'P0002') throw new AppError('AI_QUOTA_EXCEEDED', 'Monthly AI quota exceeded.');

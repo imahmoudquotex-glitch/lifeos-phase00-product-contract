@@ -22,7 +22,7 @@ export function sealEnvelope(
 		nonceBase64: Buffer.from(nonce).toString('base64'),
 		wrappedItemKeyBase64: Buffer.from(wrapped).toString('base64'),
 		itemKeyNonceBase64: Buffer.from(itemKeyNonce).toString('base64'),
-		aadBase64: aad ? Buffer.from(aad).toString('base64') : undefined,
+		...(aad ? { aadBase64: Buffer.from(aad).toString('base64') } : {}),
 	};
 }
 

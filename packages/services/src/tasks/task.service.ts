@@ -1,5 +1,5 @@
 import { AppError } from '@lifeos/shared';
-import { assertCapability, type Actor } from '@lifeos/permissions';
+import { assertCapability, actorUserId, type Actor } from '@lifeos/permissions';
 import type { DbClient } from '@lifeos/db';
 import { TaskRepo } from './task.repo';
 import type { Task, CreateTaskInput, TaskStatus } from './task.types';
@@ -15,7 +15,7 @@ export class TaskService {
 		assertCapability(actor, 'task:create');
 		return this.repo.create({
 			workspaceId: actor.workspaceId,
-			createdBy: actor.userId,
+			createdBy: actorUserId(actor),
 			...input,
 		});
 	}

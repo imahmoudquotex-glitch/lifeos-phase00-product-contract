@@ -1,5 +1,5 @@
 import { AppError } from '@lifeos/shared';
-import { assertCapability, type Actor } from '@lifeos/permissions';
+import { assertCapability, actorUserId, type Actor } from '@lifeos/permissions';
 import type { DbClient } from '@lifeos/db';
 import { NoteRepo } from './note.repo';
 import type { Note, NoteVersion } from './note.types';
@@ -15,14 +15,14 @@ export class NoteService {
 		assertCapability(actor, 'note:create');
 		return this.repo.create({
 			workspaceId: actor.workspaceId,
-			createdBy: actor.userId,
+			createdBy: actorUserId(actor),
 			...input,
 		});
 	}
 
 	async update(actor: Actor, id: string, expectedVersion: number, patch: { title?: string; bodyMd?: string }): Promise<Note> {
 		assertCapability(actor, 'note:update');
-		const res = await this.repo.updateWithVersion(id, actor.workspaceId, expectedVersion, patch, actor.userId);
+		const res = await this.repo.updateWithVersion(id, actor.workspaceId, expectedVersion, patch, actorUserId(actor));
 		if (res === null) throw new AppError('NOTE_NOT_FOUND', 'Note not found.');
 		if (res === 'CONFLICT') throw new AppError('NOTE_VERSION_CONFLICT', 'Note was modified by someone else.');
 		return res;

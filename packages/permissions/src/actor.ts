@@ -89,3 +89,16 @@ export function actorFromSession(params: {
 export function actorFromSystem(systemId: string, workspaceId: string): SystemActor {
   return { kind: 'system', systemId, workspaceId };
 }
+
+/**
+ * Safely extract userId from an Actor.
+ * Throws AUTH_FORBIDDEN if called with a SystemActor (system ops don't create user-owned records).
+ */
+import { AppError } from '@lifeos/shared';
+export function actorUserId(actor: Actor): string {
+  if (actor.kind !== 'user') {
+    throw new AppError('AUTH_FORBIDDEN', 'System actors cannot perform user-owned operations.');
+  }
+  return actor.userId;
+}
+

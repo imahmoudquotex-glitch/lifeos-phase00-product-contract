@@ -72,17 +72,17 @@ describe('pages route — POST', () => {
   beforeEach(() => { vi.clearAllMocks(); });
 
   it('calls requireCapability with role and page:create', () => {
-    const ctx = mockContext('editor');
+    const ctx = mockContext('admin');
     requireCapability(ctx.role, 'page:create');
 
-    expect(requireCapability).toHaveBeenCalledWith('editor', 'page:create');
+    expect(requireCapability).toHaveBeenCalledWith('admin', 'page:create');
   });
 
   it('calls pageService.createPage with correct args', async () => {
     const mockPage = { id: 'new-page', title: 'New', depth: 0 };
     vi.mocked(pageService.createPage).mockResolvedValue(mockPage as never);
 
-    const ctx = mockContext('editor');
+    const ctx = mockContext('admin');
     const result = await pageService.createPage(ctx.dbClient, {
       workspaceId: ctx.workspaceId,
       title: 'New',

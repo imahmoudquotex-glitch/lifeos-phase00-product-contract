@@ -1,5 +1,5 @@
 import { AppError } from '@lifeos/shared';
-import { assertCapability, type Actor } from '@lifeos/permissions';
+import { assertCapability, actorUserId, type Actor } from '@lifeos/permissions';
 import type { DbClient } from '@lifeos/db';
 import { ImportJobRepo, type ImportJob } from './import-job.repo';
 
@@ -12,7 +12,7 @@ export class ImportJobService {
 
 	async start(actor: Actor, source: string): Promise<ImportJob> {
 		assertCapability(actor, 'import:start');
-		return this.repo.create({ workspaceId: actor.workspaceId, createdBy: actor.userId, source });
+		return this.repo.create({ workspaceId: actor.workspaceId, createdBy: actorUserId(actor), source });
 	}
 
 	async getById(actor: Actor, id: string): Promise<ImportJob> {

@@ -72,6 +72,16 @@ export const STATUS_MAP: Record<ErrorCode, number> = {
 	// OAuth
 	OAUTH_STATE_INVALID: 400,
 	OAUTH_STATE_EXPIRED: 410,
+
+	// ─── Phase 05 ────────────────────────────────────────────────────────────
+	AUTH_INVALID_CREDENTIALS: 401,
+	AUTH_RATE_LIMITED: 429,
+	AUTH_ACCOUNT_LOCKED: 403,
+	OAUTH_CALLBACK_FAILED: 400,
+	SESSION_REVOKED: 401,
+	LOCALE_NOT_SUPPORTED: 400,
+	CAPTCHA_REQUIRED: 403,
+	EMAIL_TEMPLATE_NOT_FOUND: 404,
 };
 
 export function statusForError(e: unknown): number {

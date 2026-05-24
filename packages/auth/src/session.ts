@@ -30,8 +30,9 @@ export async function createSession(userId: string, userAgent?: string, ip?: str
 
 export async function validateSession(token: string) {
   const tokenHash = hashSessionToken(token);
-  const session = await db.oneOrNone<{ user_id: string, expires_at: string, status: string }>(
-    `SELECT s.user_id, s.expires_at, u.status 
+  const session = await db.oneOrNone<{ user_id: string, expires_at: string, status: string, locale?: string, workspace_id?: string }>(
+    `SELECT s.user_id, s.expires_at, u.status, u.locale,
+            (SELECT w.id FROM workspaces w JOIN workspace_memberships m ON w.id = m.workspace_id WHERE m.user_id = s.user_id LIMIT 1) as workspace_id
      FROM sessions s
      JOIN users u ON s.user_id = u.id
      WHERE s.token_hash = $1 AND s.revoked_at IS NULL`,
@@ -49,7 +50,11 @@ export async function validateSession(token: string) {
     return null;
   }
   
-  return { userId: session.user_id };
+  return { 
+    userId: session.user_id,
+    locale: session.locale ?? 'en',
+    workspaceId: session.workspace_id ?? ''
+  };
 }
 
 export async function revokeSession(token: string) {

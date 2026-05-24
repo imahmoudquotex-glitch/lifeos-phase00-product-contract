@@ -1,4 +1,4 @@
-import { assertCapability, type Actor } from '@lifeos/permissions';
+import { assertCapability, actorUserId, type Actor } from '@lifeos/permissions';
 import type { DbClient } from '@lifeos/db';
 import { DailyReviewRepo, type DailyReview } from './daily-review.repo';
 
@@ -13,7 +13,7 @@ export class DailyReviewService {
 		assertCapability(actor, 'review:write');
 		return this.repo.upsert({
 			workspaceId: actor.workspaceId,
-			userId: actor.userId,
+			userId: actorUserId(actor),
 			...input,
 		});
 	}

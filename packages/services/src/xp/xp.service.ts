@@ -1,4 +1,4 @@
-import { assertCapability, type Actor } from '@lifeos/permissions';
+import { assertCapability, actorUserId, type Actor } from '@lifeos/permissions';
 import type { DbClient } from '@lifeos/db';
 import { XpRepo, type XpEvent } from './xp.repo';
 
@@ -13,13 +13,13 @@ export class XpService {
 		assertCapability(actor, 'xp:award');
 		return this.repo.award({
 			workspaceId: actor.workspaceId,
-			userId: actor.userId,
+			userId: actorUserId(actor),
 			...input,
 		});
 	}
 
 	async getTotal(actor: Actor): Promise<number> {
 		assertCapability(actor, 'xp:award');
-		return this.repo.sumByUser(actor.workspaceId, actor.userId);
+		return this.repo.sumByUser(actor.workspaceId, actorUserId(actor));
 	}
 }
