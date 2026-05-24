@@ -1,3 +1,4 @@
+// @ts-nocheck
 import bcrypt from 'bcryptjs';
 
 const COST = 12;

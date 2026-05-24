@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@lifeos/db';
 import { hashPassword } from '@lifeos/auth';

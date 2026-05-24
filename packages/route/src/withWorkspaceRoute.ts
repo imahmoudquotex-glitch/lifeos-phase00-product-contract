@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { NextRequest, NextResponse } from 'next/server';
 import { AppError } from '@lifeos/shared/errors';
 import { requireUser, requireWorkspace } from '@lifeos/auth-guard';

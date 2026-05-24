@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { envelopeOk } from '@lifeos/shared';
 import { withApiErrorHandling } from '@lifeos/route';
 

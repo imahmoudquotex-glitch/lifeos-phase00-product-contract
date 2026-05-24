@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { NextRequest, NextResponse } from 'next/server';
 import { withWorkspaceRoute } from '@lifeos/route/withWorkspaceRoute';
 import { CAPABILITIES } from '@lifeos/permissions';

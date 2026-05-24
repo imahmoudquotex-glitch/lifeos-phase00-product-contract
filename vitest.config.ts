@@ -1,4 +1,5 @@
 import { defineConfig } from 'vitest/config';
+import { fileURLToPath } from 'url';
 
 export default defineConfig({
 	test: {
@@ -18,10 +19,10 @@ export default defineConfig({
 	},
 	resolve: {
 		alias: {
-			'@lifeos/shared': new URL('./packages/shared/src/index.ts', import.meta.url).pathname,
-			'@lifeos/result': new URL('./packages/result/src/index.ts', import.meta.url).pathname,
-			'@lifeos/db': new URL('./packages/db/src/index.ts', import.meta.url).pathname,
-			'@lifeos/route': new URL('./packages/route/src/index.ts', import.meta.url).pathname,
+			'@lifeos/shared': fileURLToPath(new URL('./packages/shared/src/index.ts', import.meta.url)),
+			'@lifeos/result': fileURLToPath(new URL('./packages/result/src/index.ts', import.meta.url)),
+			'@lifeos/db': fileURLToPath(new URL('./packages/db/src/index.ts', import.meta.url)),
+			'@lifeos/route': fileURLToPath(new URL('./packages/route/src/index.ts', import.meta.url)),
 		},
 	},
 });
