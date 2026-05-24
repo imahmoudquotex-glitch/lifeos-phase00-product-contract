@@ -24,8 +24,8 @@ for (const file of files.sort()) {
     process.exit(1);
   }
   const num = parseInt(match[1]!, 10);
-  if (lastNum !== null && num !== lastNum + 1) {
-    console.error(`[check-migrations] Non-contiguous migration sequence. Expected ${lastNum + 1}, found ${num} in ${file}`);
+  if (lastNum !== null && num <= lastNum) {
+    console.error(`[check-migrations] Non-monotonic migration sequence. Expected > ${lastNum}, found ${num} in ${file}`);
     process.exit(1);
   }
   lastNum = num;

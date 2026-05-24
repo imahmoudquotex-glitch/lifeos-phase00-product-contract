@@ -1,6 +1,6 @@
 import type { DbClient } from '@lifeos/db';
 import { getDb } from '@lifeos/db';
-import { newUlid, AppError, systemClock } from '@lifeos/shared';
+import { newUlid, AppError, systemClock, toIso } from '@lifeos/shared';
 import { getServerEnv } from '@lifeos/shared/env';
 import { hashPassword } from './password';
 import { createSession } from './session';
@@ -40,7 +40,7 @@ export async function signUp(input: SignUpInput): Promise<SignUpResult> {
   const passwordHash = await hashPassword(password);
   const userId = newUlid();
   const workspaceId = newUlid();
-  const now = new Date(systemClock.nowMs()).toISOString();
+  const now = toIso(systemClock.nowMs());
 
   await dbClient.tx(async (tx) => {
     // 1. Create workspace (no users.workspace_id — workspace is a separate entity)

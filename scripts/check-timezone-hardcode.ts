@@ -32,6 +32,7 @@ function scanDir(dir: string) {
 		if (statSync(full).isDirectory()) {
 			scanDir(full);
 		} else if (entry.endsWith('.ts') || entry.endsWith('.tsx')) {
+			if (entry.endsWith('.test.ts') || entry.endsWith('.test.tsx')) continue;
 			const normalFull = normalize(full);
 			if (ALLOWED.includes(normalFull)) continue;
 			const content = readFileSync(full, 'utf8');

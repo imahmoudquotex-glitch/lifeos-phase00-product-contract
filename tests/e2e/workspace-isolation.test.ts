@@ -22,7 +22,7 @@ const BASE_URL = process.env['TEST_BASE_URL'] ?? 'http://localhost:3000';
 
 // Helper: get session cookie for a user
 async function getSessionCookie(email: string, password: string): Promise<string> {
-  const res = await fetch(`${BASE_URL}/api/v1/auth/login`, {
+  const res = await fetch(`${BASE_URL}/api/v1/auth/signin`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password }),

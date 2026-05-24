@@ -9,11 +9,10 @@
     "src/**/*"
   ],
   "references": [
-    {
-      "path": "../shared"
-    },
-    {
-      "path": "../db"
-    }
+    { "path": "../shared" },
+    { "path": "../db" },
+    { "path": "../permissions" },
+    { "path": "../security" },
+    { "path": "../vault-crypto" }
   ]
 }

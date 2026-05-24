@@ -16,6 +16,7 @@
     "@lifeos/auth": "workspace:*",
     "@lifeos/auth-guard": "workspace:*",
     "@lifeos/db": "workspace:*",
+    "@lifeos/permissions": "workspace:*",
     "zod": "^3.23.0"
   },
   "devDependencies": {

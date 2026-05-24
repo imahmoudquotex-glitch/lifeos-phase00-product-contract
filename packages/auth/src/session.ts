@@ -1,7 +1,7 @@
 import { createHmac, randomBytes } from 'node:crypto';
 import { getServerEnv } from '@lifeos/shared/env';
 import type { DbClient } from '@lifeos/db';
-import { systemClock } from '@lifeos/shared/time';
+import { systemClock, toIso } from '@lifeos/shared/time';
 import { AppError } from '@lifeos/shared/errors';
 
 /**
@@ -22,6 +22,8 @@ export async function createSession(
   userAgent?: string,
   ip?: string,
 ): Promise<{ token: string; expiresAt: string }> {
+  const { newUlid } = await import('@lifeos/shared');
+  const id = newUlid();
   // ADR-0013: raw token = 32 cryptographic random bytes, not a ULID
   const token = randomBytes(32).toString('base64url');
   const tokenHash = hashSessionToken(token);
@@ -29,13 +31,13 @@ export async function createSession(
   const env = getServerEnv();
   const ttlMs = env.SESSION_TTL_DAYS * 24 * 60 * 60 * 1000;
   const expiresAtMs = systemClock.nowMs() + ttlMs;
-  // Avoid new Date() in business logic per ADR-0013 — use nowMs() + manual ISO
-  const expiresAtIso = new Date(expiresAtMs).toISOString();
+  // Avoid new Date object in business logic per ADR-0013 — use nowMs() + manual ISO
+  const expiresAtIso = toIso(expiresAtMs);
 
   await dbClient.none(
     `INSERT INTO sessions (id, user_id, token_hash, user_agent, ip_inet, expires_at)
      VALUES ($1, $2, $3, $4, $5::inet, $6)`,
-    [tokenHash, userId, tokenHash, userAgent ?? null, ip ?? null, expiresAtIso],
+    [id, userId, tokenHash, userAgent ?? null, ip ?? null, expiresAtIso],
   );
 
   return { token, expiresAt: expiresAtIso };
@@ -63,11 +65,11 @@ export async function validateSession(
     locale: string | null;
     last_seen_at: string | null;
   }>(
-    `SELECT s.id AS token_hash, s.user_id, s.expires_at, s.last_seen_at,
+    `SELECT s.token_hash, s.user_id, s.expires_at, s.last_seen_at,
             u.status, u.locale
      FROM sessions s
      JOIN users u ON s.user_id = u.id
-     WHERE s.id = $1 AND s.revoked_at IS NULL`,
+     WHERE s.token_hash = $1 AND s.revoked_at IS NULL`,
     [tokenHash],
   );
 
@@ -77,10 +79,10 @@ export async function validateSession(
   if (session.status !== 'active') return null;
 
   // Throttled last_seen_at: only update if > 60 s since last touch
-  const sixtySecondsAgo = new Date(systemClock.nowMs() - 60_000).toISOString();
+  const sixtySecondsAgo = toIso(systemClock.nowMs() - 60_000);
   if (!session.last_seen_at || session.last_seen_at < sixtySecondsAgo) {
     await dbClient.none(
-      `UPDATE sessions SET last_seen_at = now() WHERE id = $1`,
+      `UPDATE sessions SET last_seen_at = now() WHERE token_hash = $1`,
       [tokenHash],
     );
   }
@@ -105,7 +107,7 @@ export async function validateSession(
 export async function revokeSession(dbClient: DbClient, rawToken: string): Promise<void> {
   const tokenHash = hashSessionToken(rawToken);
   await dbClient.none(
-    `UPDATE sessions SET revoked_at = now() WHERE id = $1 AND revoked_at IS NULL`,
+    `UPDATE sessions SET revoked_at = now() WHERE token_hash = $1 AND revoked_at IS NULL`,
     [tokenHash],
   );
 }

@@ -1,8 +1,6 @@
 /** @type {import('next').NextConfig} */
 
 // Security headers — Phase 04 implementation (ADR 0021)
-// CSP nonce is injected per-request in apps/web/middleware.ts
-// Headers here are static (nonce excluded from static config intentionally)
 const securityHeaders = [
   {
     key: 'X-Frame-Options',

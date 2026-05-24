@@ -20,8 +20,6 @@
     "@lifeos/shared": "workspace:*",
     "@lifeos/web-guards": "workspace:*",
     "@lifeos/workspaces": "workspace:*",
-    "@supabase/ssr": "^0.10.3",
-    "@supabase/supabase-js": "^2.106.1",
     "geist": "^1.7.1",
     "next": "^14.2.0",
     "react": "^18.2.0",

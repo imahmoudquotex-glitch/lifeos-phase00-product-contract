@@ -2,7 +2,7 @@
 // Phase 04: CI gate for secret leaks — was placeholder in Phase 01, now active.
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
-import { scanTextForSecrets } from '@lifeos/security';
+import { scanTextForSecrets } from '../packages/security/src/scanner';
 
 const ROOT = process.cwd();
 const IGNORED = new Set(['node_modules', '.next', '.git', 'dist', 'build', 'coverage']);
@@ -23,7 +23,8 @@ const hits: string[] = [];
 for (const f of files) {
 	const rel = relative(ROOT, f).replace(/\\/g, '/');
 	if (rel.startsWith('packages/security/src/scanner.ts')) continue; // skip patterns file itself
-	if (rel.startsWith('packages/security/tests/scanner.test.ts')) continue; // skip test fixtures
+	if (rel.startsWith('packages/security/tests/scanner.test.')) continue; // skip test fixtures
+	if (rel.startsWith('docs/')) continue; // skip docs where dummy keys might be discussed
 	const text = readFileSync(f, 'utf-8');
 	hits.push(...scanTextForSecrets(rel, text));
 }

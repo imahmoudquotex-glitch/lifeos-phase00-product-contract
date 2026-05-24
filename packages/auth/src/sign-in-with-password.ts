@@ -5,7 +5,7 @@ import { verifyPassword } from './password';
 import { createSession } from './session';
 import { userRepo } from './user.repo';
 import { newUlid } from '@lifeos/shared/ids';
-import { systemClock } from '@lifeos/shared/time';
+import { systemClock, toIso } from '@lifeos/shared/time';
 
 export type SignInResult = {
   sessionToken: string;   // raw token to set in cookie
@@ -64,40 +64,47 @@ export async function signInWithPassword(
   //   actor_user_id (not actor_id), created_at (not occurred_at)
   const workspaceId = membership?.workspace_id;
   if (workspaceId) {
-    const prevRow = await dbClient.oneOrNone<{ event_hash: string }>(
-      `SELECT event_hash FROM workspace_audit_events
-         WHERE workspace_id = $1 ORDER BY created_at DESC LIMIT 1`,
-      [workspaceId],
-    );
-    const prevHash = prevRow?.event_hash ?? GENESIS_HASH;
-    const occurredAt = new Date(systemClock.nowMs()).toISOString();
-    const evInput = {
-      workspaceId,
-      actorId: user.id,
-      eventType: 'auth.signin.success',
-      payload: { userAgent },
-      occurredAt,
-    };
-    const eventHash = computeEventHash(prevHash, evInput);
-    await dbClient.none(
-      `INSERT INTO workspace_audit_events
-         (id, workspace_id, actor_user_id, event_type, payload, event_hash, prev_hash)
-       VALUES ($1, $2, $3, $4, $5::jsonb, $6, $7)`,
-      [
-        newUlid(),
+    await dbClient.tx(async (tx) => {
+      // Advisory xact lock ensures no concurrent inserts for this workspace
+      // hashtext() in postgres converts string to integer lock id
+      await tx.none(`SELECT pg_advisory_xact_lock(hashtext($1))`, [workspaceId]);
+
+      const prevRow = await tx.oneOrNone<{ event_hash: string }>(
+        `SELECT event_hash FROM workspace_audit_events
+           WHERE workspace_id = $1 ORDER BY created_at DESC LIMIT 1`,
+        [workspaceId],
+      );
+      const prevHash = prevRow?.event_hash ?? GENESIS_HASH;
+      const occurredAt = toIso(systemClock.nowMs());
+      const evInput = {
         workspaceId,
-        user.id,
-        evInput.eventType,
-        JSON.stringify(evInput.payload),
-        eventHash,
-        prevHash,
-      ],
-    );
+        actorId: user.id,
+        eventType: 'auth.signin.success',
+        payload: { userAgent },
+        occurredAt,
+      };
+      const eventHash = computeEventHash(prevHash, evInput);
+      await tx.none(
+        `INSERT INTO workspace_audit_events
+           (id, workspace_id, actor_user_id, event_type, payload, event_hash, prev_hash)
+         VALUES ($1, $2, $3, $4, $5::jsonb, $6, $7)`,
+        [
+          newUlid(),
+          workspaceId,
+          user.id,
+          evInput.eventType,
+          JSON.stringify(evInput.payload),
+          eventHash,
+          prevHash,
+        ],
+      );
+    });
   }
 
+  const { hashSessionToken } = await import('./session');
   return {
     sessionToken: session.token,
-    sessionId: session.token,
+    sessionId: hashSessionToken(session.token),
     userId: user.id,
     workspaceId: workspaceId ?? null,
     locale: 'en', // Phase 02 users table has no locale column; added in 0200

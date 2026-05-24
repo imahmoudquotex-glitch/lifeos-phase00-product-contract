@@ -30,30 +30,11 @@ export async function GET(req: NextRequest): Promise<Response> {
 	try {
 		const env = getServerEnv();
 		const dbClient = getDb(env.DATABASE_URL);
-		const stored = await dbClient.oneOrNone<{
-			state: string;
-			expires_at: Date;
-			consumed_at: Date | null;
-		}>(
-			`SELECT state, expires_at, consumed_at FROM oauth_state_store
-			   WHERE state = $1 FOR UPDATE`,
-			[state],
-		);
-
-		if (!stored) {
+		const { verifyAndConsumeStateToken } = await import('@lifeos/auth');
+		const isValid = await verifyAndConsumeStateToken(dbClient, state);
+		if (!isValid) {
 			return Response.redirect(new URL('/signin?error=oauth_state_invalid', req.url));
 		}
-		if (stored.consumed_at) {
-			return Response.redirect(new URL('/signin?error=oauth_state_replay', req.url));
-		}
-		if (new Date(stored.expires_at).getTime() < systemClock.nowMs()) {
-			return Response.redirect(new URL('/signin?error=oauth_state_expired', req.url));
-		}
-
-		await dbClient.none(
-			`UPDATE oauth_state_store SET consumed_at = now() WHERE state = $1`,
-			[state],
-		);
 	} catch {
 		return Response.redirect(new URL('/signin?error=oauth_state_invalid', req.url));
 	}

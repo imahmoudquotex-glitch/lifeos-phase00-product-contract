@@ -1,6 +1,6 @@
 import type { DbClient } from '@lifeos/db';
 import { getDb } from '@lifeos/db';
-import { newUlid, AppError, systemClock } from '@lifeos/shared';
+import { newUlid, AppError, systemClock, toIso } from '@lifeos/shared';
 import { getServerEnv } from '@lifeos/shared/env';
 import { hashPassword } from './password';
 
@@ -32,7 +32,7 @@ export async function requestPasswordReset(
 
   const tokenId = newUlid();
   const ttlMs = env.PASSWORD_RESET_TTL_MINUTES * 60 * 1000;
-  const expiresAt = new Date(systemClock.nowMs() + ttlMs).toISOString();
+  const expiresAt = toIso(systemClock.nowMs() + ttlMs);
 
   await dbClient.none(
     `INSERT INTO password_reset_tokens (id, user_id, expires_at, created_at)
@@ -65,8 +65,8 @@ export async function resetPassword(tokenId: string, newPassword: string): Promi
 
   if (!token) throw new AppError('AUTH_INVALID_CREDENTIALS', 'Invalid reset token.');
   if (token.used_at) throw new AppError('AUTH_INVALID_CREDENTIALS', 'Token already used.');
-  // String ISO comparison (no new Date())
-  if (token.expires_at < new Date(systemClock.nowMs()).toISOString()) {
+  // String ISO comparison (no new Date instantiations)
+  if (token.expires_at < systemClock.nowIso()) {
     throw new AppError('AUTH_INVALID_CREDENTIALS', 'Reset token expired.');
   }
 

@@ -9,7 +9,8 @@
 	},
 	"dependencies": {
 		"@noble/hashes": "^1.5.0",
-		"@lifeos/shared": "workspace:*"
+		"@lifeos/shared": "workspace:*",
+		"@lifeos/db": "workspace:*"
 	},
 	"devDependencies": {
 		"typescript": "^5.5.0",

@@ -6,7 +6,7 @@ import { getServerEnv } from '@lifeos/shared/env';
  * Phase 04 middleware — CSP + Security headers.
  * ADR-0018: strict CSP with per-request nonce (no unsafe-inline).
  * ADR-0020: Session validation done server-side in route guards (withWorkspaceRoute),
- *           NOT client-side via Supabase.
+ *           NOT client-side.
  */
 export function middleware(req: NextRequest): NextResponse {
   // generateNonce uses randomBytes(16) from @lifeos/security — not the inline version

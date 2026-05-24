@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { withWorkspaceRoute } from '@lifeos/auth-guard';
+import { withWorkspaceRoute } from '@lifeos/route';
 import { pageService } from '@lifeos/pages';
 import { envelopeOk } from '@lifeos/shared';
 

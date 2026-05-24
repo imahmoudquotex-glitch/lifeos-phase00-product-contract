@@ -37,18 +37,8 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
     const env = getServerEnv();
     const dbClient = getDb(env.DATABASE_URL);
-    await dbClient.none(
-      `INSERT INTO csp_reports (id, violated_directive, blocked_uri, document_uri, source_file, raw_report)
-       VALUES ($1, $2, $3, $4, $5, $6)`,
-      [
-        newUlid(),
-        violatedDirective,
-        blockedUri,
-        documentUri,
-        sourceFile,
-        JSON.stringify(report),
-      ]
-    );
+    const { insertCspReport } = await import('@lifeos/security');
+    await insertCspReport(dbClient, report, violatedDirective, blockedUri, documentUri, sourceFile);
   } catch (err: unknown) {
     // Never let a DB error propagate — CSP reporting must not cause browser errors
     logger.error('csp_report_db_error', { err });

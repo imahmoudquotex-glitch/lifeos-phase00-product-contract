@@ -32,10 +32,9 @@
     "@lifeos/permissions": "workspace:*",
     "@lifeos/security": "workspace:*",
     "@lifeos/shared": "workspace:*",
-    "bcryptjs": "^3.0.3"
+    "@lifeos/vault-crypto": "workspace:*"
   },
   "devDependencies": {
-    "@types/bcryptjs": "^3.0.0",
     "vitest": "^1.6.0"
   }
 }

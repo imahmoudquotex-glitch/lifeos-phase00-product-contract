@@ -1,26 +1,12 @@
-'use client';
+import { redirect } from 'next/navigation';
+import { getSession } from '../../lib/get-session';
+import { SignOutButton } from './sign-out-button';
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { createClient } from '../../lib/supabase/client';
-
-export default function AppPage() {
-  const router = useRouter();
-  const supabase = createClient();
-
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      if (!data.user) {
-        router.replace('/signin');
-      } else {
-        window.location.href = 'http://localhost:8081/dashboard';
-      }
-    });
-  }, []);
-
-  async function signOut() {
-    await supabase.auth.signOut();
-    router.replace('/signin');
+export default async function AppPage() {
+  const session = await getSession();
+  
+  if (!session) {
+    redirect('/signin');
   }
 
   return (
@@ -47,18 +33,7 @@ export default function AppPage() {
         <p style={{ color: '#71717a', marginBottom: 32 }}>
           تسجيل الدخول نجح — قريباً هيجي الـ dashboard الكامل
         </p>
-        <button
-          onClick={signOut}
-          style={{
-            padding: '10px 24px',
-            background: 'rgba(255,255,255,.06)',
-            border: '1px solid rgba(255,255,255,.1)',
-            borderRadius: 10, color: '#fafafa',
-            cursor: 'pointer', fontSize: '.9rem',
-          }}
-        >
-          تسجيل الخروج
-        </button>
+        <SignOutButton />
       </div>
     </div>
   );

@@ -4,8 +4,8 @@
  * WIRED-WHEN: Phase 05 — HTTP server integration (Next.js + real Postgres)
  *
  * Tests the full authentication journey:
- * 1. POST /api/v1/auth/login → success returns session token + cookie
- * 2. POST /api/v1/auth/login with bad credentials → 401 INVALID_CREDENTIALS
+ * 1. POST /api/v1/auth/signin → success returns session token + cookie
+ * 2. POST /api/v1/auth/signin with bad credentials → 401 INVALID_CREDENTIALS
  * 3. GET /api/v1/me with valid session cookie → 200 { ok: true, data: { userId, email } }
  * 4. GET /api/v1/me without session → 401 UNAUTHENTICATED
  * 5. POST /api/v1/auth/logout → clears session cookie, subsequent GET /me returns 401
@@ -26,8 +26,8 @@ const TEST_PASSWORD = 'TestPass123!';
 describe.skip('E2E: auth flow', () => {
   let sessionCookie: string;
 
-  it('POST /api/v1/auth/login → 200 with valid credentials', async () => {
-    const res = await fetch(`${BASE_URL}/api/v1/auth/login`, {
+  it('POST /api/v1/auth/signin → 200 with valid credentials', async () => {
+    const res = await fetch(`${BASE_URL}/api/v1/auth/signin`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email: TEST_EMAIL, password: TEST_PASSWORD }),
@@ -41,8 +41,8 @@ describe.skip('E2E: auth flow', () => {
     expect(sessionCookie).toBeTruthy();
   });
 
-  it('POST /api/v1/auth/login → 401 with invalid password', async () => {
-    const res = await fetch(`${BASE_URL}/api/v1/auth/login`, {
+  it('POST /api/v1/auth/signin → 401 with invalid password', async () => {
+    const res = await fetch(`${BASE_URL}/api/v1/auth/signin`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email: TEST_EMAIL, password: 'wrong-password' }),
