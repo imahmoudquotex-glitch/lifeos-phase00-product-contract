@@ -17,4 +17,4 @@
 | D-011 | 2026-05-24 | `packages/ai` will be created in Phase 06; until then any direct AI SDK import is forbidden | Avoids accidental provider lock-in and vault leaks during early phases | Allowing temporary direct calls | — | AI/Security |
 | D-012 | 2026-05-24 | Migration ranges revised post-implementation + Wxx notation retired + 100-slot policy locked from Phase 06+ | Phase 00 v1.2 promised ranges (0001–0099 / 0100–0199 / 0200–0299 / 0300–0399 / none) diverged from actual Phase 02..05 usage (0001–0118 / 0119–0147 / 0148–0199 / 0200–0299); ADR-0024 from Phase 05 retires `Wxx` and `wave/*`; future phases need a deterministic formula | (a) Keep inaccurate ranges in docs and let drift grow; (b) Renumber already-applied migrations | Partially supersedes D-006 phase notation; refines convention from D-007/D-008 | DX/Backend |
 
-> AI Executor: replace `YYYY-MM-DD` with the actual ISO date when committing. New decisions after Phase 00 go to `docs/adr/<NNNN>-*.md`.
+> New decisions after Phase 00 go to `docs/adr/NNNN-*.md` (using the ADR template at `docs/adr/template.md`).

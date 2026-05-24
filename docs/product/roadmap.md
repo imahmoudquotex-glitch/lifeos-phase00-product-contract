@@ -6,7 +6,7 @@
 |---|---|---|---|
 | W00 | 01 | Architecture Contracts & Naming Freeze | Monorepo, shared packages, DB client interface, CI guards. |
 | W01 | 02 | Kernel: Workspace, Profile, Pages | Auth tables, workspace, RLS, page tree. |
-| W02 | 03 | Data Plane: Tasks, Notes, Habits, Expenses, Calendar, Vault, AI Quota | All tenant tables + repos + services. |
+| W02 | 03 | Data Plane: Tasks, Notes, Habits, Expenses, Calendar, Vault metadata, AI Quota | All tenant tables + repos + services. Vault crypto (XChaCha20) arrives in Phase 04. |
 | W03 | 04 | Security Fortress & Offline PWA | Vault crypto, CSP, SW, audit chain, push, redaction. |
 | W04 | 05 | Zenith Integration & Auth UI | Design system import, login/signup/onboarding/settings UIs. |
 | W05 | 06–08 | AI Gateway, Search, Dashboard | `@lifeos/ai` provider abstraction + sensitivity guard, FTS, daily dashboard. |
