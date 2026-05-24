@@ -8,6 +8,9 @@
     { "path": "packages/permissions" },
     { "path": "packages/repo" },
     { "path": "packages/services" },
+    { "path": "packages/vault-crypto" },
+    { "path": "packages/security" },
+    { "path": "packages/offline" },
     { "path": "apps/web" },
     { "path": "apps/worker" }
   ]

@@ -17,6 +17,7 @@
     "typecheck": "tsc -b",
     "ci:guards": "tsx scripts/check-naming.ts && tsx scripts/check-migrations.ts && tsx scripts/check-rls.ts && tsx scripts/check-routes-envelope.ts && tsx scripts/check-idempotency.ts && tsx scripts/check-no-sql-in-routes.ts && tsx scripts/check-no-ai-direct-provider.ts && tsx scripts/check-no-vault-leak.ts && tsx scripts/check-money-columns.ts && tsx scripts/check-timezone-hardcode.ts && tsx scripts/check-encryption-primitives.ts && tsx scripts/check-no-duplicate-app-error.ts && tsx scripts/check-no-design-drift.ts && tsx scripts/check-mvp-scope.ts auth",
     "check-scope": "tsx scripts/check-mvp-scope.ts",
+    "check:secrets": "tsx scripts/check-no-vault-leak.ts",
     "prepare": "husky"
   },
   "devDependencies": {

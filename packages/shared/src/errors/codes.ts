@@ -52,6 +52,25 @@ export interface ErrorCodeRegistry {
 	PUBLIC_SHARE_NOT_FOUND: true;
 	PUBLIC_SHARE_EXPIRED: true;
 	WEBHOOK_NONCE_REUSED: true;
+
+	// ─── Phase 04 ───────────────────────────────────────────────────────────
+	// Vault crypto
+	VAULT_DECRYPT_FAILED: true;
+	VAULT_MASTER_KEY_INVALID: true;
+	VAULT_ITEM_KEY_INVALID: true;
+	// CSRF
+	CSRF_TOKEN_INVALID: true;
+	CSRF_TOKEN_MISSING: true;
+	// CSP
+	CSP_VIOLATION_REPORT: true;
+	// Offline / outbox
+	OFFLINE_NETWORK_UNAVAILABLE: true;
+	OUTBOX_BODY_HASH_MISMATCH: true;
+	// Audit chain
+	AUDIT_CHAIN_BROKEN: true;
+	// OAuth
+	OAUTH_STATE_INVALID: true;
+	OAUTH_STATE_EXPIRED: true;
 }
 
 /** Union of every registered error code. */
