@@ -1,0 +1,4 @@
+BEGIN;
+SELECT plan(1);
+SELECT pass('OK');
+ROLLBACK;

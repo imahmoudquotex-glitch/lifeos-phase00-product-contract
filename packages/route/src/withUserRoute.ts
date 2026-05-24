@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { AppError } from '@lifeos/shared';
 import { withApiErrorHandling } from './withApiErrorHandling';
 

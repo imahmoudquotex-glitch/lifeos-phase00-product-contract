@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@lifeos/shared": "workspace:*",
-    "@lifeos/db": "workspace:*"
+    "@lifeos/db": "workspace:*",
+    "@lifeos/permissions": "workspace:*"
   }
 }

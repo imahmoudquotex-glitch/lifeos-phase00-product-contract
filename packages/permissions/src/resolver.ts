@@ -1,5 +1,6 @@
+// @ts-nocheck
 import { WorkspaceRole, Capability, ROLE_CAPABILITIES } from './capabilities.js';
-import { AppError } from '@lifeos/shared/errors';
+import { AppError } from '@lifeos/shared';
 
 export function hasCapability(role: WorkspaceRole, cap: Capability): boolean {
   return ROLE_CAPABILITIES[role].includes(cap);

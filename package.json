@@ -4,7 +4,10 @@
   "version": "0.0.0",
   "type": "module",
   "license": "AGPL-3.0-only",
-  "engines": { "node": ">=20.11.0", "pnpm": ">=9.0.0" },
+  "engines": {
+    "node": ">=20.11.0",
+    "pnpm": ">=9.0.0"
+  },
   "packageManager": "pnpm@9.0.0",
   "scripts": {
     "build": "turbo run build",
@@ -29,6 +32,8 @@
     "turbo": "^2.0.0",
     "typescript": "^5.4.0",
     "vitest": "^1.6.0"
+  },
+  "dependencies": {
+    "zod": "^3.23.0"
   }
 }
-
