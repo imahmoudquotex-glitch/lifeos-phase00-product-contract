@@ -6,7 +6,9 @@
   "scripts": {
     "test": "vitest run",
     "test:watch": "vitest",
-    "check-scope": "tsx scripts/check-mvp-scope.ts"
+    "check-scope": "tsx scripts/check-mvp-scope.ts",
+    "typecheck": "tsc --noEmit",
+    "lint": "echo 'ESLint configured in Phase 01 via turbo'"
   },
   "keywords": [],
   "license": "AGPL-3.0-only",
@@ -15,9 +17,9 @@
     "pnpm": ">=9.0.0"
   },
   "devDependencies": {
-    "@types/node": "^25.9.1",
-    "tsx": "^4.22.3",
-    "typescript": "^6.0.3",
-    "vitest": "^4.1.7"
+    "@types/node": "^20.11.0",
+    "tsx": "^4.7.0",
+    "typescript": "^5.4.0",
+    "vitest": "^1.6.0"
   }
 }
