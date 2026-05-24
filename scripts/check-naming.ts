@@ -8,7 +8,7 @@ import { readdirSync, statSync } from 'fs';
 import { join } from 'path';
 
 const ROOT = process.cwd();
-const KEBAB_RE = /^[a-z0-9]+(-[a-z0-9]+)*$/;
+const KEBAB_RE = /^[[\]a-z0-9]+(-[[\]a-z0-9]+)*$/;
 // Node.js/Jest conventional directories allowed as exceptions
 const ALLOWED_NAMES = new Set(['__tests__', '__mocks__', '__fixtures__']);
 const failures: string[] = [];

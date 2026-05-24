@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { AppError } from '@lifeos/shared';
 
 /**

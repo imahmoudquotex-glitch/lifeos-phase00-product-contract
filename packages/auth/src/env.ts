@@ -1,3 +1,2 @@
-// @ts-nocheck
-import { getServerEnv } from '@lifeos/shared/server-env';
+import { getServerEnv } from '@lifeos/shared/env';
 export function getAuthEnv() { return getServerEnv(); }

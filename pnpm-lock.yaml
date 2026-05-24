@@ -167,6 +167,15 @@ importers:
 
   packages/route:
     dependencies:
+      '@lifeos/auth':
+        specifier: workspace:*
+        version: link:../auth
+      '@lifeos/auth-guard':
+        specifier: workspace:*
+        version: link:../auth-guard
+      '@lifeos/db':
+        specifier: workspace:*
+        version: link:../db
       '@lifeos/shared':
         specifier: workspace:*
         version: link:../shared

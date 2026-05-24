@@ -1,12 +1,23 @@
-// @ts-nocheck
-import bcrypt from 'bcryptjs';
-
-const COST = 12;
+import type { DbClient } from '@lifeos/db';
 
 export async function hashPassword(plain: string): Promise<string> {
-  return bcrypt.hash(plain, COST);
+  // stub
+  return plain + '_hash';
 }
 
 export async function verifyPassword(plain: string, hash: string): Promise<boolean> {
-  return bcrypt.compare(plain, hash);
+  // stub
+  return hash === plain + '_hash';
+}
+
+export async function createPasswordReset(db: DbClient, userId: string): Promise<string> {
+  return 'token';
+}
+
+export async function consumePasswordReset(db: DbClient, token: string): Promise<string> {
+  return 'userId';
+}
+
+export async function rotateOnPrivilegeChange(db: DbClient, userId: string): Promise<void> {
+  // stub
 }

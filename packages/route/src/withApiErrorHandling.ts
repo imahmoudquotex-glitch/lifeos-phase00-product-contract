@@ -1,7 +1,6 @@
-// @ts-nocheck
 import { AppError, envelopeErr, statusForError, consoleLogger } from '@lifeos/shared';
 
-type RouteHandler = (req: Request) => Promise<Response>;
+type RouteHandler = (req: Request, context: any) => Promise<Response>;
 
 /**
  * Wraps a Next.js App Router route handler.
@@ -9,9 +8,9 @@ type RouteHandler = (req: Request) => Promise<Response>;
  * Logs structured error details via consoleLogger.
  */
 export function withApiErrorHandling(handler: RouteHandler): RouteHandler {
-	return async (req: Request): Promise<Response> => {
+	return async (req: Request, context: any): Promise<Response> => {
 		try {
-			return await handler(req);
+			return await handler(req, context);
 		} catch (e) {
 			const error =
 				e instanceof Error ? e : new AppError('UNKNOWN', 'An unexpected error occurred');

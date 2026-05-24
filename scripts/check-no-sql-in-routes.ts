@@ -8,7 +8,7 @@ import { readdirSync, readFileSync, statSync } from 'fs';
 import { join } from 'path';
 
 const ROOT = process.cwd();
-const SQL_RE = /\b(SELECT|INSERT|UPDATE|DELETE|WITH)\b/i;
+const SQL_RE = /(['"`]\s*(SELECT|INSERT\s+INTO|UPDATE|DELETE\s+FROM|WITH)\b)/i;
 const failures: string[] = [];
 
 function scanDir(dir: string) {

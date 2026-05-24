@@ -1,4 +1,4 @@
-// @ts-nocheck
-import { withWorkspaceRoute } from '@lifeos/route/withWorkspaceRoute';
-export const PUT = withWorkspaceRoute(async () => Response.json({}));
-export const DELETE = withWorkspaceRoute(async () => Response.json({}));
+import { withWorkspaceRoute } from '@lifeos/route';
+import { NextResponse } from 'next/server';
+export const PUT = withWorkspaceRoute(async () => NextResponse.json({}));
+export const DELETE = withWorkspaceRoute(async () => NextResponse.json({}));

@@ -1,3 +1,3 @@
-// @ts-nocheck
-import { withApiErrorHandling } from '@lifeos/route/with-api-error-handling';
-export const GET = withApiErrorHandling(async () => Response.json({}));
+import { withApiErrorHandling } from '@lifeos/route';
+import { NextResponse } from 'next/server';
+export const GET = withApiErrorHandling(async () => NextResponse.json({}));

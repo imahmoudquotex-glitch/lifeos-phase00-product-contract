@@ -1,5 +1,5 @@
-// @ts-nocheck
 import { db } from '@lifeos/db';
+import type { DbClient } from '@lifeos/db';
 import { AppError } from '@lifeos/shared/errors';
 
 /**
@@ -9,29 +9,19 @@ import { AppError } from '@lifeos/shared/errors';
 export async function withWorkspaceContext<T>(
   userId: string,
   workspaceId: string,
-  callback: (client: any) => Promise<T>
+  callback: (tx: DbClient) => Promise<T>
 ): Promise<T> {
-  const client = await db.connect();
-  try {
-    await client.query('BEGIN');
-    
+  return db.tx(async (tx) => {
     // Set RLS variables
-    await client.query(`SELECT set_config('app.current_user_id', $1, true)`, [userId]);
-    await client.query(`SELECT set_config('app.current_workspace_id', $1, true)`, [workspaceId]);
+    await tx.none(`SELECT set_config('app.current_user_id', $1, true)`, [userId]);
+    await tx.none(`SELECT set_config('app.current_workspace_id', $1, true)`, [workspaceId]);
     
     // Verify membership
-    const memCheck = await client.query(`SELECT app_is_member($1) as is_member`, [workspaceId]);
-    if (!memCheck.rows[0]?.is_member) {
+    const isMember = await tx.oneOrNone<{ is_member: boolean }>(`SELECT app_is_member($1) as is_member`, [workspaceId]);
+    if (!isMember || !isMember.is_member) {
       throw new AppError('AUTH_FORBIDDEN', 'User is not a member of this workspace');
     }
     
-    const result = await callback(client);
-    await client.query('COMMIT');
-    return result;
-  } catch (error) {
-    await client.query('ROLLBACK');
-    throw error;
-  } finally {
-    client.release();
-  }
+    return callback(tx);
+  });
 }
