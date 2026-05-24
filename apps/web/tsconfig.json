@@ -1,0 +1,15 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true,
+    "plugins": [{ "name": "next" }],
+    "jsx": "preserve",
+    "rootDir": ".",
+    "outDir": "dist"
+  },
+  "include": ["app/**/*", "next.config.mjs"],
+  "references": [
+    { "path": "../../packages/shared" },
+    { "path": "../../packages/route" }
+  ]
+}

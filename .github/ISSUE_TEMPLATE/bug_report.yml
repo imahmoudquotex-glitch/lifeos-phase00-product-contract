@@ -1,0 +1,25 @@
+name: Bug Report
+description: File a bug report
+labels: [bug]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What happened?
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce
+      description: Minimal steps to reproduce the issue
+    validations:
+      required: true
+  - type: dropdown
+    id: phase
+    attributes:
+      label: Affected Phase
+      options: ["01", "02", "03", "04", "05", "06", "other"]
+    validations:
+      required: true

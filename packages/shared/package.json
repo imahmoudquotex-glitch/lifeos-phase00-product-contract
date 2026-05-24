@@ -1,0 +1,20 @@
+{
+  "name": "@lifeos/shared",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": { "types": "./src/index.ts", "import": "./src/index.ts" },
+    "./ids": { "types": "./src/ids/newUlid.ts", "import": "./src/ids/newUlid.ts" },
+    "./time": { "types": "./src/time/clock.ts", "import": "./src/time/clock.ts" },
+    "./money": { "types": "./src/money/money.ts", "import": "./src/money/money.ts" },
+    "./errors": { "types": "./src/errors/index.ts", "import": "./src/errors/index.ts" },
+    "./envelope": { "types": "./src/envelope/envelope.ts", "import": "./src/envelope/envelope.ts" },
+    "./pagination": { "types": "./src/pagination/cursor.ts", "import": "./src/pagination/cursor.ts" },
+    "./env": { "types": "./src/env/server-env.ts", "import": "./src/env/server-env.ts" },
+    "./logger": { "types": "./src/logger/logger.ts", "import": "./src/logger/logger.ts" }
+  },
+  "scripts": { "build": "tsc -b", "test": "vitest run" }
+}

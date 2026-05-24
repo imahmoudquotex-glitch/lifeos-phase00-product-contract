@@ -1,23 +1,34 @@
 {
-  "name": "@lifeos/root",
-  "version": "0.0.1",
-  "description": "LifeOS — Phase 00 Product Contract",
+  "name": "lifeos-monorepo",
+  "private": true,
+  "version": "0.0.0",
   "type": "module",
-  "scripts": {
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "check-scope": "tsx scripts/check-mvp-scope.ts"
-  },
-  "keywords": [],
   "license": "AGPL-3.0-only",
-  "engines": {
-    "node": ">=20.11.0",
-    "pnpm": ">=9.0.0"
+  "engines": { "node": ">=20.11.0", "pnpm": ">=9.0.0" },
+  "packageManager": "pnpm@9.0.0",
+  "scripts": {
+    "build": "turbo run build",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "test": "vitest run",
+    "typecheck": "tsc -b",
+    "ci:guards": "tsx scripts/check-naming.ts && tsx scripts/check-migrations.ts && tsx scripts/check-rls.ts && tsx scripts/check-routes-envelope.ts && tsx scripts/check-idempotency.ts && tsx scripts/check-no-sql-in-routes.ts && tsx scripts/check-no-ai-direct-provider.ts && tsx scripts/check-no-vault-leak.ts && tsx scripts/check-money-columns.ts && tsx scripts/check-timezone-hardcode.ts && tsx scripts/check-encryption-primitives.ts && tsx scripts/check-no-duplicate-app-error.ts && tsx scripts/check-no-design-drift.ts && tsx scripts/check-mvp-scope.ts auth",
+    "check-scope": "tsx scripts/check-mvp-scope.ts",
+    "prepare": "husky"
   },
   "devDependencies": {
-    "@types/node": "^25.9.1",
-    "tsx": "^4.22.3",
-    "typescript": "^6.0.3",
-    "vitest": "^4.1.7"
+    "@commitlint/cli": "^19.0.0",
+    "@commitlint/config-conventional": "^19.0.0",
+    "@types/node": "^20.11.0",
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "@typescript-eslint/parser": "^7.0.0",
+    "eslint": "^8.57.0",
+    "husky": "^9.0.0",
+    "prettier": "^3.2.0",
+    "tsx": "^4.7.0",
+    "turbo": "^2.0.0",
+    "typescript": "^5.4.0",
+    "vitest": "^1.6.0"
   }
 }
+
