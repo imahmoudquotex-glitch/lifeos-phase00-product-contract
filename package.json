@@ -1,0 +1,23 @@
+{
+  "name": "@lifeos/root",
+  "version": "0.0.1",
+  "description": "LifeOS — Phase 00 Product Contract",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "check-scope": "tsx scripts/check-mvp-scope.ts"
+  },
+  "keywords": [],
+  "license": "AGPL-3.0-only",
+  "engines": {
+    "node": ">=20.11.0",
+    "pnpm": ">=9.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^25.9.1",
+    "tsx": "^4.22.3",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.7"
+  }
+}
