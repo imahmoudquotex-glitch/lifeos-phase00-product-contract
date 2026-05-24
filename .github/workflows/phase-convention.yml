@@ -1,0 +1,63 @@
+name: Phase Convention Gate
+
+# ADR-0024: enforces phase/NN-name branch naming and phase-NN-locked tag naming
+# Fails CI if any branch or tag uses forbidden patterns (wave/*, wNN-frozen)
+
+on:
+  push:
+    branches: ['**']
+    tags: ['**']
+  pull_request:
+    branches: ['**']
+
+jobs:
+  convention:
+    name: Check branch/tag convention
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check branch name
+        run: |
+          BRANCH="${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}"
+          echo "Branch: $BRANCH"
+
+          # Allow main, develop, phase/NN-*, and tag refs
+          if echo "$BRANCH" | grep -qE '^refs/tags/'; then
+            echo "Tag push — skipping branch check."
+            exit 0
+          fi
+
+          # Forbidden patterns
+          if echo "$BRANCH" | grep -qE '^wave/'; then
+            echo "❌ ERROR: 'wave/*' branches are forbidden (ADR-0024). Use 'phase/NN-name'."
+            exit 1
+          fi
+          if echo "$BRANCH" | grep -qE '^w[0-9]+-frozen'; then
+            echo "❌ ERROR: 'wNN-frozen' branches are forbidden (ADR-0024). Use 'phase-NN-locked' tags."
+            exit 1
+          fi
+
+          echo "✅ Branch '$BRANCH' passes convention check."
+
+      - name: Check tag name (if tag push)
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          TAG="${GITHUB_REF#refs/tags/}"
+          echo "Tag: $TAG"
+
+          # Forbidden tag patterns
+          if echo "$TAG" | grep -qE '^w[0-9]+-frozen'; then
+            echo "❌ ERROR: 'wNN-frozen' tags are forbidden (ADR-0024). Use 'phase-NN-locked'."
+            exit 1
+          fi
+
+          # Valid tag patterns: phase-NN-locked, v*.*.*
+          if echo "$TAG" | grep -qE '^phase-[0-9]+-locked$'; then
+            echo "✅ Tag '$TAG' is a valid phase lock tag."
+            exit 0
+          fi
+          if echo "$TAG" | grep -qE '^v[0-9]+\.[0-9]+\.[0-9]+'; then
+            echo "✅ Tag '$TAG' is a valid semver tag."
+            exit 0
+          fi
+
+          echo "⚠️  Tag '$TAG' does not match known patterns but is not forbidden."

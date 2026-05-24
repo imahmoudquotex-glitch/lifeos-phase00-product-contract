@@ -1,0 +1,15 @@
+#!/usr/bin/env sh
+# .husky/pre-push — ADR-0024: enforce phase/* branch naming
+# Forbids wave/* branches (legacy mistake from Phase 01-03)
+
+BRANCH=$(git rev-parse --abbrev-ref HEAD)
+
+if echo "$BRANCH" | grep -qE '^wave/'; then
+	echo "ERROR: 'wave/*' branches are forbidden. Use 'phase/NN-name'. (ADR-0024)"
+	exit 1
+fi
+
+if echo "$BRANCH" | grep -qE '^w[0-9]+-frozen'; then
+	echo "ERROR: 'wNN-frozen' tags are forbidden. Use 'phase-NN-locked'. (ADR-0024)"
+	exit 1
+fi
