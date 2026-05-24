@@ -1,0 +1,37 @@
+{
+  "name": "@lifeos/auth",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./src/index.ts"
+    },
+    "./password": {
+      "types": "./src/password.ts",
+      "import": "./src/password.ts"
+    },
+    "./session": {
+      "types": "./src/session.ts",
+      "import": "./src/session.ts"
+    },
+    "./workspace-context": {
+      "types": "./src/workspace-context.ts",
+      "import": "./src/workspace-context.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc -b",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@lifeos/shared": "workspace:*",
+    "@lifeos/db": "workspace:*"
+  },
+  "devDependencies": {
+    "vitest": "^1.6.0"
+  }
+}
