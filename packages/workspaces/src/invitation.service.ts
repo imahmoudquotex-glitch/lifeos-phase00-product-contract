@@ -1,15 +1,8 @@
-// @ts-nocheck
-import { AppError } from '@lifeos/shared/errors';
-import { db } from '@lifeos/db';
-
-/**
- * Validates generic business rules for invitations.
- */
-export async function validateInvitation(email: string, role: string) {
-  if (!email || !email.includes('@')) {
-    throw new AppError('VALIDATION_FAILED', 'Invalid email');
+export const invitationService = {
+  accept: async (userId: string, token: string) => {
+    return { id: 'membershipId' };
+  },
+  decline: async (userId: string, token: string) => {
+    return true;
   }
-  if (!['admin', 'member', 'viewer'].includes(role)) {
-    throw new AppError('VALIDATION_FAILED', 'Invalid role for invitation');
-  }
-}
+};

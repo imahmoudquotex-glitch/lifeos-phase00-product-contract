@@ -1,21 +1,16 @@
-// @ts-nocheck
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@lifeos/db';
-import { verifyPassword, createSession } from '@lifeos/auth';
+import { verifyPassword, createSession, userRepo } from '@lifeos/auth';
 import { AppError } from '@lifeos/shared/errors';
 import { cookies } from 'next/headers';
 
-export async function POST(req: NextRequest) {
+export async function POST(req: any) {
   try {
     const { email, password } = await req.json();
     if (!email || !password) throw new AppError('VALIDATION_FAILED', 'Missing email or password');
     
-    const result = await db.query(
-      `SELECT id, password_hash, status FROM users WHERE email = $1`,
-      [email.toLowerCase()]
-    );
+    const user = await userRepo.findUserByEmailForLogin(email);
     
-    const user = result.rows[0];
     if (!user || !user.password_hash) {
       throw new AppError('AUTH_FORBIDDEN', 'Invalid credentials');
     }
@@ -38,7 +33,7 @@ export async function POST(req: NextRequest) {
       path: '/'
     });
     
-    await db.query(`UPDATE users SET last_login_at = now() WHERE id = $1`, [user.id]);
+    await userRepo.recordLogin(user.id);
     
     return NextResponse.json({ ok: true, data: { userId: user.id } });
   } catch (err: any) {

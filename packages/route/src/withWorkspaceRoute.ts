@@ -1,11 +1,11 @@
-// @ts-nocheck
 import { NextRequest, NextResponse } from 'next/server';
 import { AppError } from '@lifeos/shared/errors';
 import { requireUser, requireWorkspace } from '@lifeos/auth-guard';
-import { withWorkspaceContext } from '@lifeos/auth/workspace-context';
+import { withWorkspaceContext } from '@lifeos/auth';
+import type { DbClient } from '@lifeos/db';
 
 export function withWorkspaceRoute(
-  handler: (req: NextRequest, params: any, context: { userId: string; workspaceId: string; role: string; dbClient: any }) => Promise<NextResponse>
+  handler: (req: NextRequest, params: any, context: { userId: string; workspaceId: string; role: string; dbClient: DbClient }) => Promise<NextResponse>
 ) {
   return async (req: NextRequest, params: any) => {
     try {
@@ -19,7 +19,7 @@ export function withWorkspaceRoute(
 
       const { role } = await requireWorkspace(userId, workspaceId);
       
-      return await withWorkspaceContext(userId, workspaceId, async (client) => {
+      return await withWorkspaceContext(userId, workspaceId, async (client: DbClient) => {
         return handler(req, params, { userId, workspaceId, role, dbClient: client });
       });
     } catch (err) {

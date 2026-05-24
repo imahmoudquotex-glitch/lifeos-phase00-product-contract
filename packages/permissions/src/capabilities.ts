@@ -1,4 +1,3 @@
-// @ts-nocheck
 export type WorkspaceRole = 'owner' | 'admin' | 'member' | 'viewer';
 
 export const CAPABILITIES = {
