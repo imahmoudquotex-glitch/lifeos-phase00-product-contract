@@ -6,6 +6,8 @@ type AnySql = Sql<Record<string, never>> | TransactionSql<Record<string, never>>
 
 function wrapExecutor(sql: AnySql): Omit<DbClient, 'tx'> {
 	return {
+		// Note: We use sql.unsafe() because DbClient accepts raw strings + parameter arrays.
+		// This is safe because parameters are passed separately to the driver, preventing injection.
 		async one<T>(query: string, params?: unknown[]): Promise<T> {
 			const rows = await sql.unsafe<T[]>(query, (params ?? []) as never);
 			if (rows.length !== 1)

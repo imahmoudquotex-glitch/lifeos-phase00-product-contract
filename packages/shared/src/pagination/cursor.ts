@@ -9,9 +9,11 @@ export function defaultCursor(limit = 50): Cursor {
 }
 
 export function encodeCursor(c: Cursor): string {
-	return Buffer.from(JSON.stringify(c)).toString('base64url');
+	return btoa(JSON.stringify(c)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }
 
 export function decodeCursor(s: string): Cursor {
-	return JSON.parse(Buffer.from(s, 'base64url').toString('utf8')) as Cursor;
+	const b64 = s.replace(/-/g, '+').replace(/_/g, '/');
+	const pad = b64.length % 4 === 0 ? '' : '='.repeat(4 - (b64.length % 4));
+	return JSON.parse(atob(b64 + pad)) as Cursor;
 }

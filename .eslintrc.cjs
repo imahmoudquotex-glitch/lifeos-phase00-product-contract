@@ -11,4 +11,10 @@ module.exports = {
     'no-console': ['off'],
     '@typescript-eslint/no-explicit-any': 'off',
   },
+  overrides: [
+    {
+      files: ['packages/shared/src/logger/**', 'scripts/**'],
+      rules: { 'no-console': 'off' },
+    },
+  ],
 };

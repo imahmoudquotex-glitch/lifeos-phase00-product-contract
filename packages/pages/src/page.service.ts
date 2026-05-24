@@ -13,12 +13,11 @@ export const pageService = {
       [pageId, workspaceId]
     );
   },
-  update: async (db: DbClient, pageId: string, workspaceId: string, updates: { title?: string, content?: string }) => {
-    // Basic implementation for MVP
+  update: async (db: DbClient, pageId: string, workspaceId: string, updates: { title?: string }) => {
     return db.one(
-      `UPDATE pages SET title = COALESCE($1, title), content = COALESCE($2, content), updated_at = now() 
-       WHERE id = $3 AND workspace_id = $4 RETURNING *`,
-      [updates.title, updates.content, pageId, workspaceId]
+      `UPDATE pages SET title = COALESCE($1, title), updated_at = now() 
+       WHERE id = $2 AND workspace_id = $3 RETURNING *`,
+      [updates.title, pageId, workspaceId]
     );
   },
   movePage: async (db: DbClient, pageId: string, newParentId: string | null, workspaceId: string) => {

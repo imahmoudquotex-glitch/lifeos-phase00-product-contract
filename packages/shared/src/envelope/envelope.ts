@@ -9,7 +9,7 @@ export type ApiFailure = {
 export type ApiEnvelope<T> = ApiSuccess<T> | ApiFailure;
 
 /** Single SoT for ErrorCode -> HTTP status. Used by withApiErrorHandling and any future route adapter. */
-export const STATUS_MAP: Partial<Record<ErrorCode, number>> = {
+export const STATUS_MAP: Record<ErrorCode, number> = {
 	AUTH_REQUIRED: 401,
 	AUTH_FORBIDDEN: 403,
 	NOT_FOUND: 404,

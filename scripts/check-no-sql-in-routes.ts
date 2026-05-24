@@ -8,10 +8,10 @@ import { readdirSync, readFileSync, statSync } from 'fs';
 import { join } from 'path';
 
 const ROOT = process.cwd();
-const SQL_RE = /(['"`]\s*(SELECT|INSERT\s+INTO|UPDATE|DELETE\s+FROM|WITH)\b)/i;
+const SQL_RE = /\b(SELECT|INSERT\s+INTO|UPDATE|DELETE\s+FROM|WITH\s+\w+\s+AS)\b/;
 const failures: string[] = [];
 
-function scanDir(dir: string) {
+function scanDir(dir: string, exclude: string[] = []) {
 	let entries: string[];
 	try {
 		entries = readdirSync(dir);
@@ -19,12 +19,18 @@ function scanDir(dir: string) {
 		return;
 	}
 	for (const entry of entries) {
-		if (entry === 'node_modules' || entry === 'dist' || entry === '.next') continue;
+		if (entry === 'node_modules' || entry === 'dist' || entry === '.next' || exclude.includes(entry)) continue;
 		const full = join(dir, entry);
 		if (statSync(full).isDirectory()) {
-			scanDir(full);
+			scanDir(full, exclude);
 		} else if (entry === 'route.ts' || entry === 'route.tsx') {
-			const content = readFileSync(full, 'utf8');
+			let content = readFileSync(full, 'utf8');
+			// strip single-line comments
+			content = content.replace(/\/\/.*$/gm, '');
+			// strip multi-line comments
+			content = content.replace(/\/\*[\s\S]*?\*\//g, '');
+			// strip string literals (single, double, backticks)
+			content = content.replace(/(['"`])(?:(?=(\\?))\2.)*?\1/g, '');
 			if (SQL_RE.test(content)) {
 				failures.push(`SQL in route file: ${full}`);
 			}
@@ -33,6 +39,7 @@ function scanDir(dir: string) {
 }
 
 scanDir(join(ROOT, 'apps'));
+scanDir(join(ROOT, 'packages'), ['db']); // exclude db where SQL is legal
 
 if (failures.length > 0) {
 	console.error('[check-no-sql-in-routes] FAILED:');

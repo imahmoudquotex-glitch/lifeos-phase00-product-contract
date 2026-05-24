@@ -14,6 +14,6 @@ export const GET = withWorkspaceRoute(async (_req, _params, context) => {
 export const POST = withWorkspaceRoute(async (req, _params, context) => {
   requireCapability(context.role as WorkspaceRole, 'invitation:create');
   const { email, role } = await req.json();
-  const invitation = await invitationService.create(context.dbClient, context.workspaceId, email, role);
+  const invitation = await invitationService.create(context.dbClient, context.workspaceId, email, role, context.userId);
   return NextResponse.json(envelopeOk({ invitation }));
 });

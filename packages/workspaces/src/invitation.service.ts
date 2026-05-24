@@ -1,43 +1,81 @@
 import { type DbClient } from '@lifeos/db';
+import { newUlid } from '@lifeos/shared/ids';
+import { createHmac, createHash } from 'crypto';
+import { getServerEnv } from '@lifeos/shared/env';
+
+function hashInvitationToken(rawToken: string): string {
+  return createHash('sha256').update(rawToken).digest('hex');
+}
 
 export const invitationService = {
-  create: async (db: DbClient, workspaceId: string, email: string, role: string) => {
-    return db.one(
-      `INSERT INTO workspace_invitations (workspace_id, email, role, token, expires_at)
-       VALUES ($1, $2, $3, encode(gen_random_bytes(32), 'hex'), now() + interval '7 days')
+  create: async (db: DbClient, workspaceId: string, email: string, role: string, invitedBy: string) => {
+    const rawToken = newUlid(); // or random bytes
+    const tokenHash = hashInvitationToken(rawToken);
+    
+    await db.one(
+      `INSERT INTO workspace_invitations (id, workspace_id, email, role, token_hash, invited_by, expires_at)
+       VALUES ($1, $2, $3, $4, $5, $6, now() + interval '7 days')
        RETURNING *`,
-      [workspaceId, email, role]
+      [newUlid(), workspaceId, email, role, tokenHash, invitedBy]
     );
+    // Return rawToken to send via email
+    return { token: rawToken };
   },
+  
   listByWorkspace: async (db: DbClient, workspaceId: string) => {
     return db.any(
-      `SELECT * FROM workspace_invitations WHERE workspace_id = $1 AND status = 'pending'`,
+      `SELECT * FROM workspace_invitations 
+       WHERE workspace_id = $1 
+         AND accepted_at IS NULL 
+         AND declined_at IS NULL 
+         AND revoked_at IS NULL`,
       [workspaceId]
     );
   },
-  findByToken: async (db: DbClient, token: string) => {
+  
+  findByToken: async (db: DbClient, rawToken: string) => {
+    const tokenHash = hashInvitationToken(rawToken);
     return db.oneOrNone(
       `SELECT wi.id, wi.workspace_id, wi.role, wi.expires_at, w.name as workspace_name
        FROM workspace_invitations wi
        JOIN workspaces w ON wi.workspace_id = w.id
-       WHERE wi.token = $1 AND wi.status = 'pending'`,
-      [token]
+       WHERE wi.token_hash = $1 
+         AND wi.accepted_at IS NULL 
+         AND wi.declined_at IS NULL 
+         AND wi.revoked_at IS NULL`,
+      [tokenHash]
     );
   },
-  accept: async (db: DbClient, userId: string, token: string) => {
+  
+  accept: async (db: DbClient, userId: string, rawToken: string) => {
+    const tokenHash = hashInvitationToken(rawToken);
     return db.tx(async (tx) => {
       const inv = await tx.one(
-        `UPDATE workspace_invitations SET status = 'accepted' WHERE token = $1 AND status = 'pending' RETURNING workspace_id, role`,
-        [token]
+        `UPDATE workspace_invitations SET accepted_at = now() 
+         WHERE token_hash = $1 
+           AND accepted_at IS NULL 
+           AND declined_at IS NULL 
+           AND revoked_at IS NULL 
+         RETURNING workspace_id, role`,
+        [tokenHash]
       );
       return tx.one(
-        `INSERT INTO workspace_memberships (workspace_id, user_id, role) VALUES ($1, $2, $3) RETURNING id`,
-        [(inv as any).workspace_id, userId, (inv as any).role]
+        `INSERT INTO workspace_memberships (id, workspace_id, user_id, role) VALUES ($1, $2, $3, $4) RETURNING id`,
+        [newUlid(), (inv as any).workspace_id, userId, (inv as any).role]
       );
     });
   },
-  decline: async (db: DbClient, userId: string, token: string) => {
-    await db.none(`UPDATE workspace_invitations SET status = 'declined' WHERE token = $1 AND status = 'pending'`, [token]);
+  
+  decline: async (db: DbClient, userId: string, rawToken: string) => {
+    const tokenHash = hashInvitationToken(rawToken);
+    await db.none(
+      `UPDATE workspace_invitations SET declined_at = now() 
+       WHERE token_hash = $1 
+         AND accepted_at IS NULL 
+         AND declined_at IS NULL 
+         AND revoked_at IS NULL`, 
+      [tokenHash]
+    );
     return true;
   }
 };

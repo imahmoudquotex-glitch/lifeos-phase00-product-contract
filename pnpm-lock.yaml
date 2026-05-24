@@ -195,6 +195,9 @@ importers:
 
   packages/workspaces:
     dependencies:
+      '@lifeos/auth':
+        specifier: workspace:*
+        version: link:../auth
       '@lifeos/db':
         specifier: workspace:*
         version: link:../db

@@ -17,7 +17,3 @@ export async function createPasswordReset(db: DbClient, userId: string): Promise
 export async function consumePasswordReset(db: DbClient, token: string): Promise<string> {
   return 'userId';
 }
-
-export async function rotateOnPrivilegeChange(db: DbClient, userId: string): Promise<void> {
-  // stub
-}

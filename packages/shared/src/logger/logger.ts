@@ -6,7 +6,6 @@ export interface Logger {
 
 function line(level: 'info' | 'warn' | 'error', event: string, fields?: Record<string, unknown>) {
 	const payload = { level, event, ts: new Date().toISOString(), ...(fields ?? {}) };
-	// eslint-disable-next-line no-console
 	console[level](JSON.stringify(payload));
 }
 

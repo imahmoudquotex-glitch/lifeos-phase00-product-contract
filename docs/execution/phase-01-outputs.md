@@ -52,3 +52,6 @@ All 11 risks from Phase 00 remain Open. Phase 01 partially mitigates:
 - RISK-011 (duplicate SoT) → `check-no-duplicate-app-error` enforces single AppError.
 
 Phase 02 inherits the rest.
+
+## Deviation Log
+- P01-10: Added `export const dynamic = 'force-dynamic'` to `apps/web/app/api/health/route.ts` to prevent Next.js from prerendering the healthcheck route. This diverges from the strict stage1.md output but is safer for runtime checks.
