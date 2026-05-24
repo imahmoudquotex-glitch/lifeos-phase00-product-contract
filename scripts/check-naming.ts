@@ -39,6 +39,16 @@ for (const r of SCAN_ROOTS) {
 	checkDir(r);
 }
 
+const MIGRATION_RE = /^\d{4}__[a-z0-9_]+\.sql$/;
+const migrationsDir = join(ROOT, 'packages/db/migrations');
+try {
+	for (const f of readdirSync(migrationsDir)) {
+		if (f !== '.gitkeep' && !MIGRATION_RE.test(f)) failures.push(`migration filename: ${f}`);
+	}
+} catch {
+	/* no migrations yet */
+}
+
 if (failures.length > 0) {
 	console.error('[check-naming] FAILED:');
 	for (const f of failures) console.error('  ' + f);

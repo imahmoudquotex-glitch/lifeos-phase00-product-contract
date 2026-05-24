@@ -86,6 +86,8 @@ Implementation lives in `@lifeos/db` over `postgres`. Forbidden to import `pg` /
 ## 17. Secrets
 - `process.env.X` forbidden outside `@lifeos/shared/env`.
 
+- console.* is forbidden except in logger.ts and scripts/* (enforced by ESLint).
+
 ## 18. Naming
 Tables snake_case plural; columns snake_case; indexes `idx_<table>_<cols>`; PK/FK/UQ/CHK named; TS types PascalCase; vars camelCase; constants UPPER_SNAKE; files kebab-case; routes `/api/v1/<plural>`; error codes `<DOMAIN>_<REASON>`.
 

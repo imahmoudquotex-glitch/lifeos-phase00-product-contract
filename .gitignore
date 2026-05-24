@@ -8,3 +8,18 @@ coverage
 .env.local
 .env.*.local
 .DS_Store
+
+# Build artifacts
+*.tsbuildinfo
+
+# Tooling
+pnpm-debug.log
+.pnpm-store/
+
+# Editors
+.idea/
+.vscode/
+*.swp
+
+# OS
+Thumbs.db

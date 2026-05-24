@@ -10,4 +10,10 @@ module.exports = {
     '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
     'no-console': ['warn', { allow: ['warn', 'error'] }],
   },
+  overrides: [
+    {
+      files: ['packages/shared/src/logger/**', 'scripts/**'],
+      rules: { 'no-console': 'off' },
+    },
+  ],
 };
