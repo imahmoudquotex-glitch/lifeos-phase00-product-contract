@@ -24,6 +24,9 @@ function wrapExecutor(sql: AnySql): Omit<DbClient, 'tx'> {
 		async many<T>(query: string, params?: unknown[]): Promise<T[]> {
 			return (await sql.unsafe<T[]>(query, (params ?? []) as never)) as T[];
 		},
+		async any<T>(query: string, params?: unknown[]): Promise<T[]> {
+			return (await sql.unsafe<T[]>(query, (params ?? []) as never)) as T[];
+		},
 		async none(query: string, params?: unknown[]): Promise<void> {
 			await sql.unsafe(query, (params ?? []) as never);
 		},

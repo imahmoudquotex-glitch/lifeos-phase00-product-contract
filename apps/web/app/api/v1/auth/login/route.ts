@@ -4,7 +4,7 @@ import { verifyPassword, createSession, userRepo } from '@lifeos/auth';
 import { AppError } from '@lifeos/shared/errors';
 import { cookies } from 'next/headers';
 
-export async function POST(req: any) {
+export async function POST(req: NextRequest) {
   try {
     const { email, password } = await req.json();
     if (!email || !password) throw new AppError('VALIDATION_FAILED', 'Missing email or password');
@@ -28,7 +28,7 @@ export async function POST(req: any) {
     cookies().set('lifeos_sid', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      expires: expiresAt,
+      expires: Date.parse(expiresAt),
       sameSite: 'lax',
       path: '/'
     });

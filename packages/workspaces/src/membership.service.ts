@@ -1,9 +1,8 @@
-
-import { db } from '@lifeos/db';
+import { type DbClient } from '@lifeos/db';
 
 export const membershipService = {
-  listMembers: async (tx: any, workspaceId: string) => {
-    return tx.any(
+  listMembers: async (db: DbClient, workspaceId: string) => {
+    return db.any(
       `SELECT m.id, m.user_id, m.role, u.email, u.display_name
        FROM workspace_memberships m
        JOIN users u ON m.user_id = u.id
@@ -11,10 +10,17 @@ export const membershipService = {
       [workspaceId]
     );
   },
-  removeMember: async (tx: any, workspaceId: string, userId: string) => {
-    await tx.none(
-      `UPDATE workspace_memberships SET removed_at = now() WHERE workspace_id = $1 AND user_id = $2`,
+  updateRole: async (db: DbClient, workspaceId: string, userId: string, role: string) => {
+    return db.one(
+      `UPDATE workspace_memberships SET role = $1 WHERE workspace_id = $2 AND user_id = $3 AND removed_at IS NULL RETURNING *`,
+      [role, workspaceId, userId]
+    );
+  },
+  removeMember: async (db: DbClient, workspaceId: string, userId: string) => {
+    await db.none(
+      `UPDATE workspace_memberships SET removed_at = now() WHERE workspace_id = $1 AND user_id = $2 AND removed_at IS NULL`,
       [workspaceId, userId]
     );
+    return true;
   }
 };
