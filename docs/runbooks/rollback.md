@@ -51,7 +51,31 @@ Each phase appends its own subsection here as part of its Definition of Done.
 - No DB migrations, no external providers.
 - Removing `phase-01-locked` tag is **forbidden**; superseding tag MUST be `phase-01-locked-revoked` with an ADR.
 
-### Phase 02 — Kernel
-- DB Migrations `0100` to `0118` applied. 
-- Rollback = Check footer in each `.sql` file in `packages/db/migrations/` and apply the `DROP` commands sequentially in reverse order.
-- This includes dropping RLS policies, tables (`pages`, `workspace_*`, `sessions`, `users`), and indexes.
+### Phase 02 — Rollback Procedures
+
+### 1) Tag revert
+```
+git checkout phase-01-locked
+
+# OR for hot revert in production:
+git revert <merge-sha-of-phase-02>
+```
+
+### 2) Migration down (per file, in reverse order 0118 → 0100)
+Each migration's `-- ROLLBACK:` footer is the authoritative down script. Apply in strict reverse order:
+```
+pnpm db:rollback --to 0099
+```
+
+### 3) Session invalidation (if Phase 02 leaked secret)
+```
+UPDATE sessions SET revoked_at = now() WHERE revoked_at IS NULL;
+```
+Then rotate `SESSION_PEPPER` in the secrets manager and redeploy.
+
+### 4) RLS emergency disable (last resort, requires owner approval)
+```
+ALTER TABLE pages DISABLE ROW LEVEL SECURITY;
+-- ... per table
+```
+Log the override in `decisions-log.md` under D-OVERRIDE-<date>.
