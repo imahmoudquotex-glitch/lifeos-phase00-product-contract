@@ -4,7 +4,7 @@ import { db } from '@lifeos/db';
 import { consumePasswordReset, hashPassword, rotateOnPrivilegeChange, userRepo } from '@lifeos/auth';
 import { envelopeOk } from '@lifeos/shared';
 
-export const POST = withApiErrorHandling(async (req: any, context: any) => {
+export const POST = withApiErrorHandling(async (req: Request) => {
   const { token, newPassword } = await req.json();
   const userId = await consumePasswordReset(db, token);
   const hash = await hashPassword(newPassword);

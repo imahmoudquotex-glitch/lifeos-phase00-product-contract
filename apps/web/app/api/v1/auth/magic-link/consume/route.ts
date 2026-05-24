@@ -4,7 +4,7 @@ import { db } from '@lifeos/db';
 import { consumeMagicLink, createSession } from '@lifeos/auth';
 import { envelopeOk } from '@lifeos/shared';
 
-export const POST = withApiErrorHandling(async (req: any) => {
+export const POST = withApiErrorHandling(async (req: Request) => {
   const { token } = await req.json();
   const userId = await consumeMagicLink(db, token);
   const session = await createSession(userId);

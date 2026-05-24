@@ -3,6 +3,7 @@ import { withWorkspaceRoute } from '@lifeos/route';
 import { pageService } from '@lifeos/pages';
 import { envelopeOk } from '@lifeos/shared';
 import { requireCapability } from '@lifeos/auth-guard';
+import type { WorkspaceRole } from '@lifeos/permissions';
 
 export const GET = withWorkspaceRoute(async (req, params, context) => {
   const pages = await pageService.getTree(context.dbClient, context.workspaceId);
@@ -10,14 +11,12 @@ export const GET = withWorkspaceRoute(async (req, params, context) => {
 });
 
 export const POST = withWorkspaceRoute(async (req, params, context) => {
-  requireCapability(context.role as any, 'page:manage' as any);
+  requireCapability(context.role as WorkspaceRole, 'page:create');
   const { title, parentId } = await req.json();
-  const page = await pageService.createPage({
-    tx: context.dbClient,
+  const page = await pageService.createPage(context.dbClient, {
     workspaceId: context.workspaceId,
     title,
     parentId,
-    createdById: context.userId,
   });
   return NextResponse.json(envelopeOk({ page }));
 });

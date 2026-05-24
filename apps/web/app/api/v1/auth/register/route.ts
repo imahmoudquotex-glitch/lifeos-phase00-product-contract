@@ -4,7 +4,7 @@ import { hashPassword } from '@lifeos/auth';
 import { newUlid } from '@lifeos/shared/ids';
 import { AppError } from '@lifeos/shared/errors';
 
-export async function POST(req: any) {
+export async function POST(req: NextRequest) {
   try {
     const { email, password, displayName } = await req.json();
     if (!email || !password) throw new AppError('VALIDATION_FAILED', 'Missing email or password');

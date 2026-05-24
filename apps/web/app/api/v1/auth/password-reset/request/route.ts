@@ -4,7 +4,7 @@ import { db } from '@lifeos/db';
 import { createPasswordReset, userRepo } from '@lifeos/auth';
 import { envelopeOk } from '@lifeos/shared';
 
-export const POST = withApiErrorHandling(async (req: any) => {
+export const POST = withApiErrorHandling(async (req: Request) => {
   const { email } = await req.json();
   if (email) {
     const user = await userRepo.findIdByEmail(email);
