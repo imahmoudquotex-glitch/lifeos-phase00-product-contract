@@ -1,66 +1,86 @@
-# Phase 02 Checklist: Kernel (Auth + Workspaces + Pages + RLS)
+# Phase 02 — Checklist
 
-## Preflight
-- [x] Verified Phase 01 locked
-- [x] Read `global-conventions.md`
-- [x] Reviewed `rollback.md`
+## A. Preflight
+- [x] phase-01-locked tag exists
+- [x] phase-01-outputs.md verified
+- [x] global-conventions.md present
+- [x] rollback.md has Phase 01 section
+- [x] CI green on main
+- [x] Branch `phase/02-kernel` opened
 
-## 1. Auth Database Schema
-- [x] `0100__identity_users.sql` (email, verified, password, status)
-- [x] `0101__identity_sessions.sql` (hash token, TTL)
-- [x] `0102__identity_magic_links.sql` (single use)
-- [x] `0103__identity_password_resets.sql`
-- [x] `0104__identity_email_verifications.sql`
-- [x] `0105__identity_oauth_accounts.sql`
+## B. Migrations 0100 → 0118
+- [x] 0100 users
+- [x] 0101 sessions
+- [x] 0102 magic_link_tokens
+- [x] 0103 password_reset_tokens
+- [x] 0104 email_verification_tokens
+- [x] 0105 oauth_accounts
+- [x] 0106 workspaces
+- [x] 0107 workspace_memberships (uq_workspace_owner_marker)
+- [x] 0108 workspace_invitations
+- [x] 0109 workspace_audit_events
+- [x] 0110 profiles
+- [x] 0111 pages
+- [x] 0112 pages tree triggers
+- [x] 0113 RLS helpers (app_current_user_id, app_current_workspace_id, app_is_member)
+- [x] 0114 RLS enable + FORCE on all tenant tables
+- [x] 0115 RLS policies workspaces
+- [x] 0116 RLS policies memberships + invitations + audit
+- [x] 0117 RLS policies pages
+- [x] 0118 smoke assertion
+- [x] every migration has -- ROLLBACK: footer
 
-## 2. Workspaces & Profiles
-- [x] `0106__workspaces.sql` (slug format check, owner)
-- [x] `0107__workspace_memberships.sql` (role enum, unique owner per workspace check)
-- [x] `0108__workspace_invitations.sql`
-- [x] `0109__workspace_audit_events.sql`
-- [x] `0110__profiles.sql`
+## C. Packages
+- [x] @lifeos/auth (password, session, tokens, verification, oauth, workspace-context)
+- [x] @lifeos/auth-guard (requireUser, requireWorkspace, requireCapability, csrf)
+- [x] @lifeos/workspaces (workspace, membership, invitation, slug, personal)
+- [x] @lifeos/permissions (capabilities, resolver)
+- [x] @lifeos/pages (page.service, tree, slug)
 
-## 3. Pages Tree Schema
-- [x] `0111__pages.sql` (depth <= 50 check)
-- [x] `0112__pages_tree_triggers.sql` (auto-compute depth, prevent moves across workspaces)
+## D. API Routes
+- [x] /api/v1/auth/* (register, login, logout, magic-link, password-reset, verify-email)
+- [x] /api/v1/me
+- [x] /api/v1/workspaces (+ [id], members, invitations)
+- [x] /api/v1/invitations/[token]/(accept|decline)
+- [x] /api/v1/pages (+ [id], move, archive)
 
-## 4. Row-Level Security (RLS)
-- [x] `0113__rls_helpers.sql` (`app_current_workspace_id`, `app_is_member`)
-- [x] `0114__rls_enable_force.sql` (ENABLE and FORCE on all tenant tables)
-- [x] `0115__rls_policies_workspaces.sql` (member read, owner write)
-- [x] `0116__rls_policies_memberships.sql` (isolation)
-- [x] `0117__rls_policies_pages.sql` (isolation)
-- [x] `0118__seed_admin_role_check.sql`
+## E. Cross-cutting
+- [x] withWorkspaceContext used on every tenant query
+- [x] No raw SQL outside packages/db or services
+- [x] No SELECT * anywhere
+- [x] AppError used for every failure path
+- [x] CSRF guard on every mutating /api/v1/* route
+- [x] Idempotency-Key required on every POST mutating route
 
-## 5. Kernel Packages (TypeScript)
-- [x] `@lifeos/auth` (`password.ts`, `session.ts`, `workspace-context.ts`)
-- [x] `@lifeos/auth-guard` (`requireUser`, `requireWorkspace`)
-- [x] `@lifeos/permissions` (`capabilities.ts`, `resolver.ts`)
-- [x] `@lifeos/pages` (`tree.ts` cycle detection & depth recomputation)
-- [x] `@lifeos/workspaces` (`invitation.service.ts`)
-- [x] Extend `serverEnv` in `@lifeos/shared` (SESSION_PEPPER, COOKIE_DOMAIN)
-- [x] Finalize `withWorkspaceRoute` with DB connection injection
+## F. Tests
+- [x] capabilities.test.ts
+- [x] resolver.test.ts
+- [x] tree-cycle.test.ts
+- [x] recompute-depth.test.ts
+- [x] last-owner.test.ts
+- [x] transfer-ownership-atomicity.test.ts
+- [x] invitation-generic-error.test.ts
+- [x] session-lifecycle.test.ts
+- [x] password-hash.test.ts
+- [x] workspace-context.test.ts
+- [x] pgTAP RLS isolation
+- [x] E2E auth flow
+- [x] E2E workspace isolation
+- [x] E2E page tree
 
-## 6. API Routes
-- [x] `POST /api/v1/auth/register`
-- [x] `POST /api/v1/auth/login`
-- [x] `POST /api/v1/auth/logout`
-- [x] `GET /api/v1/me`
-- [x] `GET|POST /api/v1/workspaces`
-- [x] `GET|POST /api/v1/pages` (Uses `withWorkspaceRoute`)
+## G. Docs & ADRs
+- [x] ADR 0005 session storage
+- [x] ADR 0006 RLS context strategy
+- [x] ADR 0007 page tree depth strategy
+- [x] ADR 0008 invitation generic error
+- [x] ADR 0009 transfer ownership atomicity
+- [x] phase-02-checklist.md filled
+- [x] phase-02-decisions-log.md filled (≥ 8 decisions)
+- [x] phase-02-outputs.md filled
+- [x] rollback.md → Phase 02 section appended
 
-## 7. Migration Runner
-- [x] `scripts/migrate.ts` created
-
-## 8. Tests
-- [x] `packages/pages/src/tree.test.ts`
-- [x] `packages/auth/src/session.test.ts`
-- [x] `packages/permissions/src/resolver.test.ts`
-- [x] `apps/web/app/api/v1/pages/route.test.ts`
-- [x] `db/tests/rls_isolation.test.sql`
-
-## 9. Docs & Lock
-- [x] `phase-02-decisions-log.md`
-- [x] `phase-02-outputs.md`
-- [x] Update `docs/runbooks/rollback.md`
-- [x] Git Commit & Tag `phase-02-locked`
+## H. Lock
+- [x] git commit -m "phase-02: kernel — auth + workspaces + pages + RLS"
+- [x] git tag -a phase-02-locked
+- [x] git push origin phase/02-kernel
+- [x] git push origin phase-02-locked
